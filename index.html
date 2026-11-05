@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="Arthur+Codex">
 <meta name="created" content="2026-11-04">
+<meta name="version" content="1.0.0">
+<meta name="build" content="2026-11-05">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f81f7'/%3E%3Ctext x='16' y='22.5' font-size='17' font-family='sans-serif' font-weight='700' fill='%23fff' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
 <title>脑机接口功能想象 · Wiki</title>
 <style>
@@ -46,7 +48,7 @@ main{flex:1;min-width:0}
 .crumb span{color:var(--dim)}
 .crumb b{color:var(--fg);font-weight:600}
 .topnav{margin-left:auto;display:flex;gap:12px;font-size:12px;white-space:nowrap}
-.view{padding:28px 34px 90px;max-width:1120px}
+.view{padding:28px 34px 44px;max-width:1120px}
 h1{font-size:27px;margin:0 0 6px;letter-spacing:.4px}
 h2{font-size:18px;margin:30px 0 12px;padding-left:10px;border-left:3px solid var(--accent)}
 h2.h2btn{display:flex;align-items:baseline;gap:12px}
@@ -131,7 +133,7 @@ a.bar:hover .go{color:var(--accent)}
 mark{background:#d2992244;color:#ffd866;border-radius:3px;padding:0 2px}
 .count{color:var(--muted);font-size:11.5px;font-family:ui-monospace,monospace}
 .empty{padding:26px;text-align:center;color:var(--muted)}
-footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:var(--dim);font-size:11.5px}
+footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:var(--dim);font-size:11.5px;line-height:1.7}
 /* 现实案例对照组 / 科技组合 */
 .evpill{display:inline-flex;align-items:center;gap:5px;padding:1px 8px;border-radius:5px;font-size:10.5px;font-weight:700;white-space:nowrap;border:1px solid var(--ec);color:var(--ec);background:color-mix(in srgb,var(--ec) 13%,transparent)}
 .crow{border:1px solid var(--line);border-radius:10px;background:var(--panel);margin:10px 0;padding:0;overflow:hidden}
@@ -389,6 +391,14 @@ function syncTree(seg){
     const d=ds[i];
     if(d.dataset.g===g&&!d.open)d.open=true;
   }
+}
+
+// ---------- 版本 ----------
+const VER="v1.0.0", VERDATE="2026-11-05";
+function footerHtml(){
+  return '<footer><b style="color:var(--muted)">'+VER+'</b> · 构建 '+VERDATE+
+    " · "+IT.length+" 条想象 / "+(DB.hot.length+DB.lib.length)+" 个作品页 / "+DB.cases.list.length+" 例现实对照 / "+DB.compose.list.length+
+    " 条科技组合 · 代码 MIT / 内容 CC BY-SA 4.0 · <a href=\"#/about\">关于、来源与免责</a></footer>";
 }
 
 // ---------- 视图 ----------
@@ -1187,7 +1197,7 @@ function route(){
   else if(t==="lv"){const x=LVX[seg[1]];html=viewLevel(seg[1]);crumb.push([x?x.axis+"等级":"等级",x?"#/"+x.ax:""],[x?(x.name.indexOf(x.k)===0?x.name:x.k+" "+x.name):"",""]);}
   else html=notFound("页面 "+t);
   $("#crumb").innerHTML=crumb.map((c,i)=>(i?"<span>/</span>":"")+(c[1]?"<a href=\""+c[1]+"\">"+esc(c[0])+"</a>":"<b>"+esc(c[0])+"</b>")).join("");
-  $("#view").innerHTML=html;
+  $("#view").innerHTML=html+footerHtml();
   bindTable();
   syncTree(seg);
   $("#side").classList.remove("open");
