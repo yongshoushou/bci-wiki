@@ -14,7 +14,7 @@ const go = x => { ctx.location.hash = x; vm.runInContext("route()", ctx); return
 let bad = [];
 
 // 1) 别名：旧写法 / 常见简写渲染出的页面必须与规范路由逐字符一致
-const AL = [["#/tbl", "#/table"], ["#/devices", "#/dev"], ["#/kits", "#/compose"], ["#/map", "#/mapst"], ["#/regs", "#/reg"], ["#/idx", "#/index"], ["#/faq", "#/about"]];
+const AL = [["#/tbl", "#/table"], ["#/devices", "#/dev"], ["#/kits", "#/compose"], ["#/map", "#/mapst"], ["#/regs", "#/reg"], ["#/idx", "#/index"], ["#/questions", "#/faq"]];
 AL.forEach(([a, tgt]) => {
   const v1 = go(a), v2 = go(tgt);
   if (v1 !== v2) bad.push(a + "→" + tgt);

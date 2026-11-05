@@ -91,8 +91,9 @@ md += "4. **未上市的不要编价。** 任何「预计售价」都是传闻�
 // --- 写入（CRLF 统一，幂等）---
 const f = path.join(dir, "脑机接口功能想象对照表.md");
 let doc = fs.readFileSync(f, "utf8").replace(/\r\n/g, "\n");
+const md19Safe = doc.indexOf("## 19. 作品 × 落地状态矩阵") >= 0;
 const START = "## 17. 技术天花板与数值年表";
-const END = "*完*";
+const END = md19Safe ? "## 19. 作品 × 落地状态矩阵" : "*完*";
 const block = md.replace(/\r\n/g, "\n");
 if (doc.indexOf(START) >= 0) {
   const a = doc.indexOf(START);
