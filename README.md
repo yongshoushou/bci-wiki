@@ -14,7 +14,7 @@
 
 ## 在线阅读
 
-👉 **https://bci-imagination-wiki.app.workbuddy.host/**（国内直连）
+👉 **https://bci-imagination-wiki.app.workbuddy.host/?sharecode=ANJMFJDHC3**（国内直连；**链接必须带 `?sharecode=` 参数**，去掉会被托管侧拦截返回 403/404）
 
 👉 https://yongshoushou.github.io/bci-wiki/（GitHub Pages）
 
