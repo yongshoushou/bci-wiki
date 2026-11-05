@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="Arthur+Codex">
 <meta name="created" content="2026-11-04">
-<meta name="version" content="2.1.0">
+<meta name="version" content="2.1.1">
 <meta name="build" content="2026-11-05">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f81f7'/%3E%3Ctext x='16' y='22.5' font-size='17' font-family='sans-serif' font-weight='700' fill='%23fff' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
 <title>脑机接口功能想象 · Wiki</title>
@@ -521,7 +521,7 @@ function syncTree(seg){
 }
 
 // ---------- 版本 ----------
-const VER="v2.1.0", VERDATE="2026-11-05";
+const VER="v2.1.1", VERDATE="2026-11-05";
 function footerHtml(){
   return '<footer><b style="color:var(--muted)">'+VER+'</b> · 构建 '+VERDATE+
     " · "+IT.length+" 条想象 / "+DB.tech.list.length+" 条技术 / "+DB.dev.list.length+" 台设备 / "+DB.ind.list.length+" 个适应证 / "+DB.reg.list.length+" 条监管路径 / "+DB.rep.list.length+" 项可复现 / "+(DB.hot.length+DB.lib.length)+" 个作品页 / "+DB.cases.list.length+" 例现实对照 / "+DB.compose.list.length+
@@ -985,8 +985,8 @@ function viewTechItem(k){
   if(t.hist&&t.hist.length){
     const y0=String(t.hist[0][0]),y1=String(t.hist[t.hist.length-1][0]);
     h+='<h2>数值年表<span class="tag" style="margin-left:8px;font-weight:400">'+t.hist.length+' 个里程碑 · '+esc(y0)+'–'+esc(y1)+'</span></h2>';
-    h+='<p class="note" style="margin-top:0">「当时的最优值」是该年公开报道里最好的一档，不保证是量产指标。看斜率比看单点有用：<b>数字在加速，说明瓶颈在工程；数字多年不动，说明瓶颈在物理或生物学</b>。</p>';
-    h+="<table class=w><thead><tr><th>年份</th><th>里程碑</th><th>当时的最优值</th><th>说明</th></tr></thead><tbody>";
+    h+='<p class="note" style="margin-top:0">「当时的关键数值」取该年公开报道里可核查的那个数，不保证是量产指标。有些指标的「进步」是数值变小（如长期稳定性记的是衰减幅度），所以看的是<b>走向</b>而不是大小：<b>数字在加速，说明瓶颈在工程；数字多年不动，说明瓶颈在物理或生物学</b>。</p>';
+    h+="<table class=w><thead><tr><th>年份</th><th>里程碑</th><th>当时的关键数值</th><th>说明</th></tr></thead><tbody>";
     t.hist.forEach(r=>{
       h+='<tr><td style="font-family:ui-monospace,monospace;white-space:nowrap">'+esc(String(r[0]))+"</td><td><b>"+esc(r[1])+'</b></td><td style="font-family:ui-monospace,monospace;font-size:12.5px;color:var(--accent)">'+esc(r[2])+"</td><td class=note style=\"font-size:12px\">"+esc(r[3])+"</td></tr>";
     });
@@ -1527,7 +1527,12 @@ function viewMapSt(){
     const c2="@misc{"+key+",\n  author = {庸垨},\n  title  = {六档落地状态：脑机接口功能想象对照表},\n  year   = {"+VERDATE.slice(0,4)+"},\n  note   = {"+VER+"，取数 "+VERDATE+"},\n  url    = {"+url+"}\n}";
     const sty='style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font-size:12.5px;line-height:1.7;margin:8px 0 14px"';
     h+='<div class="card"><b>GB/T 7714 格式</b><pre '+sty+'>'+esc(c1)+'</pre><b>BibTeX</b><pre '+sty+'>'+esc(c2)+"</pre></div>";
-    h+='<p class="note">另有一份<b>不依赖 JavaScript 的静态快照</b>，适合离线存档、打印或贴进报告：<a href="mapst.html" target="_blank" rel="noopener">mapst.html</a>（与本页同源，含生成日期与引用块）。</p>';
+    // 托管侧只放行带 sharecode 的静态文件，所以同目录副本要继承当前查询串
+    const qs=location.search||"";
+    h+='<p class="note">另有一份<b>不依赖 JavaScript 的静态快照</b>，适合离线存档、打印或贴进报告：'
+      +'<a href="mapst.html'+esc(qs)+'" target="_blank" rel="noopener">mapst.html</a>（同目录副本）'
+      +'　·　<a href="https://yongshoushou.github.io/bci-wiki/mapst.html" target="_blank" rel="noopener">GitHub Pages 版</a>'
+      +'（永久链接，无需查询参数）。两者与本页同源，含生成日期与引用块。</p>';
   }
   h+='<p class=note>逐条看：<a href="#/table">完整表格</a> 可按这六档筛选；任一<a href="#/table">条目页</a>顶部的锚点条写明它落在哪一档、缺的是零件还是指标。相关：<a href="#/scale">结论与难度标尺</a> · <a href="#/reality">现实基线</a> · <a href="#/cases">现实案例对照组</a>。</p>';
   return h;
