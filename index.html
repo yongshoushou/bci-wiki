@@ -105,6 +105,14 @@ table.w td{padding:8px 11px;border-bottom:1px solid #21262d;vertical-align:top;c
 table.w tr:hover td{background:#1c212855}
 table.w tr:last-child td{border-bottom:none}
 .bar{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 12px}
+a.bar{display:block;color:inherit;transition:border-color .15s,background .15s}
+a.bar:hover{border-color:var(--accent);background:#1c2128;text-decoration:none}
+a.bar:hover .go{color:var(--accent)}
+.bar .go{color:var(--dim);margin-left:5px;transition:color .15s}
+.lvs{display:flex;flex-wrap:wrap;gap:7px;margin:16px 0 2px}
+.lvchip{font-size:11.5px;padding:4px 11px;border:1px solid var(--line);border-radius:999px;color:var(--muted);text-decoration:none;white-space:nowrap}
+.lvchip:hover{border-color:var(--ec,var(--accent));color:var(--fg);text-decoration:none}
+.lvchip.on{color:var(--fg);border-color:var(--ec,var(--accent));background:#1c2128;font-weight:600}
 .bar .t{font-size:11px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:6px}
 .bar .track{height:6px;background:#21262d;border-radius:99px;overflow:hidden}
 .bar .fill{height:100%;border-radius:99px}
@@ -220,6 +228,12 @@ function lawPill(d){const l=lawOf(d);if(!l)return "";const L=LWL[l.v];return '<s
 function lawTags(d){const l=lawOf(d);if(!l)return "";return l.j.map(k=>{const x=LWD[k];return x?'<a class="ntag" href="#/law/'+k+'">'+k+" "+esc(x.name)+"</a>":"";}).join("");}
 function lawBadge(d){const l=lawOf(d);if(!l)return "";return l.v>=3?'<span class="tag" style="color:#d29922;border-color:#d2992255">未作判断</span>':"";}
 
+// —— 等级聚合页索引（#/lv/L3、#/lv/E3、#/lv/V2）：三个数轴共用一个等级页 ——
+const LVX={};
+LVS.forEach(l=>{LVX[l.k]={axis:"难度",ax:"scale",k:l.k,name:l.name,c:l.c,def:l.def,ids:IT.filter(d=>lvKey(d)===l.k).map(d=>d.id)};});
+ETHL.forEach(l=>{LVX[l.k]={axis:"伦理",ax:"ethics",k:l.k,name:l.name,c:l.c,def:l.def,judged:l.judged,ids:(l.ids||[]).slice()};});
+LWL.forEach(l=>{LVX[l.k]={axis:"法律",ax:"law",k:l.k,name:l.name,c:l.c,def:l.def,judged:l.judged,ids:(l.ids||[]).slice()};});
+
 const GRPN={CP:"赛博朋克 2077",M:"黑客帝国",X:"其他作品"};
 
 // —— 现实案例对照组 ——
@@ -330,6 +344,30 @@ function syncTree(seg){
 }
 
 // ---------- 视图 ----------
+function viewLevel(key){
+  const x=LVX[key];
+  if(!x)return notFound("等级 "+key);
+  // 难度等级的 name 自带「L5 」前缀，伦理/法律的不带，统一去重
+  const lab=(k,name)=>name.indexOf(k)===0?name:k+" "+name;
+  const sibs=x.axis==="难度"?LVS:x.axis==="伦理"?ETHL:LWL;
+  let h='<h1>'+lab(x.k,x.name)+'</h1>';
+  h+='<p class=lead>'+x.axis+"轴上的一个等级 · "+x.ids.length+" 条功能条目";
+  if(x.judged===false)h+=' · <span style="color:#d29922">本等级不作判断</span>';
+  h+="</p>";
+  h+='<div class="card" style="border-color:'+x.c+'55"><p class=note style="margin:0"><b style="color:'+x.c+'">'+lab(x.k,x.name)+"</b>　"+esc(x.def||"")+"</p></div>";
+  h+='<div class="lvs">'+sibs.map(l=>'<a class="lvchip'+(l.k===x.k?" on":"")+'" style="--ec:'+l.c+'" href="#/lv/'+l.k+'">'+lab(l.k,l.name)+'<b style="opacity:.55;font-weight:400"> '+(LVX[l.k]?LVX[l.k].ids.length:0)+"</b></a>").join("")+"</div>";
+  h+="<h2>该等级的条目（"+x.ids.length+"）</h2>";
+  if(!x.ids.length){
+    h+='<p class=note>这个等级目前没有条目。</p>';
+  }else{
+    h+="<table class=w><thead><tr><th>#</th><th>功能</th><th>出处</th><th>难度</th><th>伦理</th><th>法律</th></tr></thead><tbody>";
+    x.ids.forEach(id=>{const d=BY[id];if(!d)return;h+='<tr><td>'+aItem(id,id)+"</td><td>"+aItem(id)+"</td><td>"+esc(d.work)+"</td><td>"+pill(d)+"</td><td>"+ethPill(d)+"</td><td>"+lawPill(d)+lawBadge(d)+"</td></tr>";});
+    h+="</tbody></table>";
+  }
+  h+='<p class=note style="margin-top:16px">← 回到 <a href="#/'+x.ax+'">'+x.axis+'分类标准</a> · 在 <a href="#/table?q='+x.k+'">完整表格中筛选该等级</a> · <a href="#/">首页分布图</a></p>';
+  return h;
+}
+
 function viewHome(){
   const counts={};LVS.forEach(l=>counts[l.k]=0);IT.forEach(d=>counts[lvKey(d)]++);
   const max=Math.max(...Object.values(counts),1);
@@ -347,19 +385,19 @@ function viewHome(){
   ].forEach(t=>h+="<li>"+t+"</li>");
   h+="</ol>";
   h+='<h2 class="h2btn"><span>难度分布</span><a class="hmore" href="#/scale">完整难度标尺 L1–L5 →</a></h2><div class=grid>';
-  LVS.forEach(l=>h+='<div class="bar"><div class="t"><span style="color:'+l.c+'">'+esc(l.name)+"</span><span>"+counts[l.k]+" 条</span></div><div class=track><div class=fill style=\"width:"+counts[l.k]/max*100+"%;background:"+l.c+"\"></div></div></div>");
+  LVS.forEach(l=>h+='<a class="bar" href="#/lv/'+l.k+'"><div class="t"><span style="color:'+l.c+'">'+esc(l.name)+'</span><span>'+counts[l.k]+' 条<span class="go">›</span></span></div><div class=track><div class=fill style="width:'+counts[l.k]/max*100+'%;background:'+l.c+'"></div></div></a>');
   h+="</div>";
   h+='<h2 class="h2btn"><span>伦理风险分布</span><a class="hmore" href="#/ethics">伦理分类标准 N1–N10 · E0–E4 →</a></h2>';
   h+='<p class=note>与难度<b>正交</b>的第二个维度：难度问「能不能做」，伦理问「该不该做、谁负责」。E 衡量的是离形成规范有多远，不是伤害大小。</p>';
   const emax=Math.max.apply(null,DB.ethics.levels.map(x=>x.ids.length).concat([1]));
   h+="<div class=grid>";
-  DB.ethics.levels.forEach(x=>h+='<div class="bar"><div class="t"><span style="color:'+x.c+'">'+x.k+" "+esc(x.name)+"</span><span>"+x.ids.length+' 条</span></div><div class=track><div class=fill style="width:'+(x.ids.length/emax*100)+"%;background:"+x.c+'"></div></div></div>');
+  DB.ethics.levels.forEach(x=>h+='<a class="bar" href="#/lv/'+x.k+'"><div class="t"><span style="color:'+x.c+'">'+x.k+" "+esc(x.name)+"</span><span>"+x.ids.length+' 条<span class="go">›</span></span></div><div class=track><div class=fill style="width:'+(x.ids.length/emax*100)+"%;background:"+x.c+'"></div></div></a>');
   h+="</div>";
   h+='<h2 class="h2btn"><span>法律状态分布</span><a class="hmore" href="#/law">法律分类标准 J1–J8 · V0–V4 →</a></h2>';
   h+='<p class=note>第三个维度：<b>只按现行法判断</b>，不预测立法。V3／V4 明确「未作判断」——不违法不等于允许。</p>';
   const lmax=Math.max.apply(null,DB.law.levels.map(x=>x.ids.length).concat([1]));
   h+="<div class=grid>";
-  DB.law.levels.forEach(x=>h+='<div class="bar"><div class="t"><span style="color:'+x.c+'">'+x.k+" "+esc(x.name)+(x.judged?"":'　<span style="color:#d29922;font-size:10.5px">不判断</span>')+"</span><span>"+x.ids.length+' 条</span></div><div class=track><div class=fill style="width:'+(x.ids.length/lmax*100)+"%;background:"+x.c+'"></div></div></div>');
+  DB.law.levels.forEach(x=>h+='<a class="bar" href="#/lv/'+x.k+'"><div class="t"><span style="color:'+x.c+'">'+x.k+" "+esc(x.name)+(x.judged?"":'　<span style="color:#d29922;font-size:10.5px">不判断</span>')+"</span><span>"+x.ids.length+' 条<span class="go">›</span></span></div><div class=track><div class=fill style="width:'+(x.ids.length/lmax*100)+"%;background:"+x.c+'"></div></div></a>');
   h+="</div>";
   h+="<h2>重点作品</h2><div class=grid>";
   ["CP2077","Matrix"].forEach(k=>{const w=WM[k];h+='<a class="tile" href="#/work/'+k+'"><b>'+esc(w.name)+"</b><span>"+esc(w.sub)+" · "+w.ids.length+" 条功能</span></a>";});
@@ -1095,7 +1133,8 @@ function route(){
   else if(t==="group"){const g=GM[seg[1]];html=g?viewGroup(g):notFound("主题 "+seg[1]);crumb.push(["主题概念",""],[g?g.name:"",""]);}
   else if(t==="glossary"){html=viewGlossary();crumb.push(["术语表",""]);}
   else if(t==="index"){html=viewIndex();crumb.push(["索引与反查",""]);}
-  else if(t==="table"){TBL.q=q.get("q")||"";html=viewTable();crumb.push(["完整表格",""]);}
+  else if(t==="table"){TBL.q=q.get("q")||"";if(q.get("q")){TBL.g="ALL";TBL.lv="ALL";TBL.e="ALL";TBL.v="ALL";}html=viewTable();crumb.push(["完整表格",""]);}
+  else if(t==="lv"){const x=LVX[seg[1]];html=viewLevel(seg[1]);crumb.push([x?x.axis+"等级":"等级",x?"#/"+x.ax:""],[x?(x.name.indexOf(x.k)===0?x.name:x.k+" "+x.name):"",""]);}
   else html=notFound("页面 "+t);
   $("#crumb").innerHTML=crumb.map((c,i)=>(i?"<span>/</span>":"")+(c[1]?"<a href=\""+c[1]+"\">"+esc(c[0])+"</a>":"<b>"+esc(c[0])+"</b>")).join("");
   $("#view").innerHTML=html;
