@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="Arthur+Codex">
 <meta name="created" content="2026-11-04">
-<meta name="version" content="1.5.0">
+<meta name="version" content="2.0.0">
 <meta name="build" content="2026-11-05">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f81f7'/%3E%3Ctext x='16' y='22.5' font-size='17' font-family='sans-serif' font-weight='700' fill='%23fff' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
 <title>脑机接口功能想象 · Wiki</title>
@@ -208,7 +208,7 @@ footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:v
 <body>
 <div class="app">
 <aside class="side" id="side">
-  <div class="brand"><a href="#/">脑机接口功能想象 · Wiki</a><div class="brand-sub">67 条想象 · 40 条技术 · 30 台设备 · 18 条监管路径</div></div>
+  <div class="brand"><a href="#/">脑机接口功能想象 · Wiki</a><div class="brand-sub">40 条技术 · 30 台设备 · 10 类适应证 · 18 条监管 · 对照 67 条想象</div></div>
   <div class="gsearch">
     <input id="gq" type="search" placeholder="搜索条目 / 作品 / 术语… （/ 聚焦）" autocomplete="off" spellcheck="false">
     <div class="suggest" id="suggest"></div>
@@ -369,7 +369,17 @@ function stPill(k,long){const m=DB.mapSt[k];if(!m)return "";return '<span class=
 function stOf(k){return DB.mapSt[k];}
 function aItem(id,label){const d=BY[id];return '<a href="#/item/'+id+'">'+(label||(d?d.fn:id))+"</a>";}
 function itemRow(id){const d=BY[id];if(!d)return "";return '<li><span class="id">'+id+"</span>"+aItem(id)+" "+pill(d)+"</li>";}
-function notFound(t){return "<h1>未找到</h1><p class=lead>"+esc(t)+"</p><p><a href=\"#/\">← 回首页</a></p>";}
+// 找不到页面时的兜底：不写死一句「未找到」，而是给出编号范围与三条最近的路
+function notFound(t,back){
+  return "<h1>未找到</h1><p class=lead>"+esc(t)+" 不存在——可能是链接抄错、编号在改版时变过，或者它从来没被写过。</p>"+
+    (back?"<p class=note>"+back+"</p>":"")+
+    '<p class="note">现行编号范围：<b>技术</b> T01–T'+String(DB.tech.list.length).padStart(2,"0")+" · <b>设备</b> D01–D"+String(DB.dev.list.length).padStart(2,"0")+" · <b>适应证</b> I01–I"+String(DB.ind.list.length).padStart(2,"0")+" · <b>监管</b> G01–G"+String(DB.reg.list.length).padStart(2,"0")+" · <b>可复现</b> O01–O"+String(DB.rep.list.length).padStart(2,"0")+" · <b>案例</b> R01–R"+String(DB.cases.list.length).padStart(2,"0")+" · <b>组合</b> K01–K"+String(DB.compose.list.length).padStart(2,"0")+" · <b>功能条目</b> C/M/X 开头两位数字。</p>"+
+    '<div class=grid><a class=tile href="#/"><b>回首页</b><span>两侧入口总览</span></a>'+
+    '<a class=tile href="#/tech"><b>技术条目</b><span>现实侧的零件层，'+DB.tech.list.length+' 条</span></a>'+
+    '<a class=tile href="#/table"><b>完整表格</b><span>'+IT.length+' 条想象，可按六档落地状态筛</span></a>'+
+    '<a class=tile href="#/index"><b>索引与反查</b><span>按主题 / 作品 / 难度 / 伦理 / 法律查编号</span></a></div>'+
+    '<p class=note>也可以按 <b>/</b> 聚焦左上角搜索框直接搜。</p>';
+}
 
 // ---------- 目录树 ----------
 // v2.0 入口层：四段式 —— 现实侧（主干）/ 判断框架 / 想象侧（文化再现）/ 工具
@@ -433,13 +443,14 @@ function tree(){
   /* ---- 判断框架：跨两侧的方法层 ---- */
   h+='<div class="grp sec">判断框架</div>';
   h+='<a class="row" href="#/scale">结论与难度标尺 L1–L5</a>';
+  h+='<a class="row" href="#/mapst">六档落地状态（想象 → 现实）</a>';
   h+=ent("#/ethics","伦理道德分类标准",DB.ethics.dims.length);
   DB.ethics.dims.forEach(x=>h+='<a class="row" href="#/ethics/'+x.k+'">'+x.k+" "+esc(x.name)+' <span class="n">'+x.ids.length+"</span></a>");
   h+=ent("#/law","法律分类标准",DB.law.dims.length);
   DB.law.dims.forEach(x=>h+='<a class="row" href="#/law/'+x.k+'">'+x.k+" "+esc(x.name)+' <span class="n">'+x.ids.length+"</span></a>");
 
-  /* ---- 想象侧：文化再现，不是待办清单 ---- */
-  h+='<div class="grp sec">想象侧 · 文化再现（'+IT.length+' 条）</div>';
+  /* ---- 想象侧：想象史，不是待办清单 ---- */
+  h+='<div class="grp sec">想象侧 · 想象史（'+IT.length+' 条）</div>';
   h+='<a class="row" href="#/table">全部功能条目（可筛选表）</a>';
   LVS.forEach(l=>{
     const arr=byLv[l.k];
@@ -509,7 +520,7 @@ function syncTree(seg){
 }
 
 // ---------- 版本 ----------
-const VER="v1.5.0", VERDATE="2026-11-05";
+const VER="v2.0.0", VERDATE="2026-11-05";
 function footerHtml(){
   return '<footer><b style="color:var(--muted)">'+VER+'</b> · 构建 '+VERDATE+
     " · "+IT.length+" 条想象 / "+DB.tech.list.length+" 条技术 / "+DB.dev.list.length+" 台设备 / "+DB.ind.list.length+" 个适应证 / "+DB.reg.list.length+" 条监管路径 / "+DB.rep.list.length+" 项可复现 / "+(DB.hot.length+DB.lib.length)+" 个作品页 / "+DB.cases.list.length+" 例现实对照 / "+DB.compose.list.length+
@@ -545,7 +556,7 @@ function viewHome(){
   const counts={};LVS.forEach(l=>counts[l.k]=0);IT.forEach(d=>counts[lvKey(d)]++);
   const max=Math.max(...Object.values(counts),1);
   let h="<h1>脑机接口功能想象 · Wiki</h1><p class=lead>这个 Wiki 的主干是<b>现实那一侧</b>——脑机接口今天已经做到什么、谁在卖、卖给谁、要过几道门：<a href=\"#/tech\">技术条目</a> → <a href=\"#/dev\">设备目录</a> → <a href=\"#/ind\">临床适应证</a> → <a href=\"#/reg\">监管与准入</a> → <a href=\"#/rep\">可复现层</a>，另有 <a href=\"#/cases\">可核查案例</a> 与 <a href=\"#/compose\">现有科技组合</a> 做交叉验证。</p>";
-  h+="<p class=lead><b>想象那一侧</b>作为「文化再现」保留：游戏 / 影视 / 动画 / 小说里的脑机接口想象（重点《赛博朋克 2077》与《黑客帝国》），共 "+IT.length+" 条。它记录的是人被反复幻想的东西和被反复恐惧的东西，<b>不是一份待办清单</b>——所以它排在后面，而不是被删掉。</p>";
+  h+="<p class=lead><b>想象那一侧</b>不是注脚，也不是一份待办清单，而是一份<b>想象史</b>：游戏 / 影视 / 动画 / 小说里人类反复想要的东西、反复害怕的东西，共 "+IT.length+" 条（重点《赛博朋克 2077》与《黑客帝国》）。它的每一条都同时回答两件事——<b>这个愿望在现实里卡在哪一环</b>，以及卡住它的是<b>缺零件</b>还是<b>缺指标</b>。所以两侧不是主次关系，是同一张表的两列：<b>想象提出要解决的问题，现实回答目前解到了哪一步</b>。</p>";
   h+="<p class=note>全站："+IT.length+" 条想象 · "+DB.tech.list.length+" 条技术 · "+DB.dev.list.length+" 台设备 · "+DB.ind.list.length+" 个适应证 · "+DB.reg.list.length+" 条监管路径 · "+DB.rep.list.length+" 项可复现资源 · "+DB.cases.list.length+" 个现实对照 · "+DB.compose.list.length+" 种科技组合 · "+DB.works.length+" 个作品页 · "+DB.hot.length+" 篇深度总结 · "+DB.lib.length+" 部作品库条目 · "+DB.glossary.length+" 条术语 · "+DB.groups.length+" 个主题概念。</p>";
   h+='<h2>现实侧五层：从零件到能买到</h2><p class=note>顺序即依赖关系——先知道有哪些零件（技术），再看现在能买到什么（设备），然后看谁真的在用（适应证），最后看为什么大多数人买不到（监管），以及凭什么相信这些数字（可复现）。</p><div class=layers>';
   [["技术条目","零件",DB.tech.list.length+" 条 · 带典型数值与失效模式","#/tech"],["设备与产品目录","能买到什么",DB.dev.list.length+" 台 · 认证状态与价格口径","#/dev"],["临床适应证图谱","谁在用",DB.ind.list.length+" 个真实患者群体 · 现有疗法天花板","#/ind"],["监管与准入路径","为什么买不到",DB.reg.list.length+" 条路径 · 法定时限 vs 实际周期","#/reg"],["可复现层","凭什么信",DB.rep.list.length+" 项 · 数据集与评估陷阱","#/rep"]].forEach((x,i)=>h+='<a class="layer" href="'+x[3]+'"><span class="ln">'+(i+1)+'</span><b>'+esc(x[0])+'</b><span class="lr">'+esc(x[1])+"</span><em>"+esc(x[2])+"</em></a>");
@@ -562,6 +573,16 @@ function viewHome(){
     "<b>最像作品的几条，其实不需要碰脑。</b>"+DB.compose.list.length+" 种现有科技组合里，"+DB.compose.tiers[0].n+" 种今天就能拼出原型（神经自适应难度、注意力定价、外挂记忆）；而"+IT.filter(d=>!d.kits||!d.kits.length).length+" 条想象连一条可拼路径都没有——那才是真正的难处。见 <a href=\"#/compose\">现有科技组合</a>。"
   ].forEach(t=>h+="<li>"+t+"</li>");
   h+="</ol>";
+  // 想象侧与现实的咬合点：67 条各自落在哪一档，一屏看完
+  const stN={};Object.keys(DB.mapSt).forEach(k=>stN[k]=0);IT.forEach(d=>stN[d.st]++);
+  const stKeys=Object.keys(DB.mapSt).filter(k=>stN[k]>0);
+  const stMax=Math.max.apply(null,stKeys.map(k=>stN[k]).concat([1]));
+  h+='<h2 class="h2btn"><span>'+IT.length+' 条想象，离落地有多远</span><a class="hmore" href="#/mapst">六档定义与判定 →</a></h2>';
+  h+='<p class=note>这是想象侧唯一需要的「进度条」：不问「哪年能实现」，只问「今天缺的是<b>零件</b>还是<b>指标</b>」。'+IT.length+' 条里<b>只有 '+stN.ship+' 条今天能买到</b>；'+stN.concept+' 条是叙事概念——换成任何技术都同样成立，不是「还没做到」，而是「不在这条路上」。点任一档可筛出该档全部条目。</p>';
+  h+="<div class=grid>";
+  stKeys.forEach(k=>{const m=DB.mapSt[k];h+='<a class="bar" href="#/table?st='+k+'"><div class="t"><span style="color:'+m.c+'">'+esc(m.name)+'</span><span>'+stN[k]+' 条<span class="go">›</span></span></div><div class=track><div class=fill style="width:'+(stN[k]/stMax*100)+'%;background:'+m.c+'"></div></div></a>';});
+  h+="</div>";
+  h+='<p class=note>每条想象都挂着两样东西：它需要的<b>技术零件</b>，和卡住它的<b>量化指标</b>——这两样不一样：零件可以买、可以等，指标只能靠实验。条目页顶部写明它缺哪一样。</p>';
   h+='<h2 class="h2btn"><span>难度分布</span><a class="hmore" href="#/scale">完整难度标尺 L1–L5 →</a></h2><div class=grid>';
   LVS.forEach(l=>h+='<a class="bar" href="#/lv/'+l.k+'"><div class="t"><span style="color:'+l.c+'">'+esc(l.name)+'</span><span>'+counts[l.k]+' 条<span class="go">›</span></span></div><div class=track><div class=fill style="width:'+counts[l.k]/max*100+'%;background:'+l.c+'"></div></div></a>');
   h+="</div>";
@@ -1374,7 +1395,7 @@ function viewKit(k){
 }
 
 function viewScale(){
-  let h="<h1>结论与难度标尺</h1><p class=lead>标尺不是时间预测。L1–L3 的年份只是量级参照；L4/L5 不随时间自动降级。</p>";
+  let h="<h1>结论与难度标尺</h1><p class=lead>标尺不是时间预测，也不是待办优先级。它量的是<b>想象与现实之间的距离</b>：L1–L3 的年份只是量级参照；L4/L5 不随时间自动降级。距离近的不一定先发生，距离远的不一定会发生——<a href=\"#/mapst\">落地形态</a>由谁愿意付钱决定，不由难度决定。</p>";
   h+="<h2>六级难度</h2><table class=w><thead><tr><th>级别</th><th>判定定义</th><th>条目数</th></tr></thead><tbody>";
   LVS.forEach(l=>h+="<tr><td>"+pill({lv:l.k==="Ln"?-1:Number(l.k[1]),lvs:l.k})+"</td><td>"+esc(l.def)+"</td><td>"+IT.filter(d=>lvKey(d)===l.k).length+"</td></tr>");
   h+="</tbody></table>";
@@ -1386,6 +1407,37 @@ function viewScale(){
    ["意识问题被跳过","虚构：默认「复制＝转移」「删掉＝真死」。现实：基底依赖、副本问题、主体连续性均无实证判据。"]].forEach(x=>h+='<div class="card"><b>'+x[0]+"</b><p class=note>"+x[1]+"</p></div>");
   h+="</div>";
   h+='<p class="note">相关主题：'+DB.groups.map(g=>'<a href="#/group/'+g.key+'">'+esc(g.name)+"</a>").join(" · ")+"</p>";
+  return h;
+}
+
+// ---------- 六档落地状态：想象与现实的同一量纲 ----------
+function viewMapSt(){
+  const stKeys=Object.keys(DB.mapSt);
+  const n={};stKeys.forEach(k=>n[k]=0);IT.forEach(d=>n[d.st]++);
+  const lvKeys=LVS.map(l=>l.k);
+  const shipOdd=IT.filter(d=>d.st==="ship"&&d.lv>=2).length;
+  const labLow=IT.filter(d=>d.st==="lab"&&d.lv===1).length;
+  let h="<h1>六档落地状态</h1><p class=lead>这是全站唯一把<b>想象</b>与<b>现实</b>放在同一量纲上的东西。<b>它不是难度</b>——L1–L5 问「原理上能不能做到」，这一层问「今天它以什么形态存在」：能买、能进临床、只有单点验证、缺多环、物理不允许，还是根本不在技术路径上。</p>";
+  h+='<p class=note>判定只看一条：<b>有没有可核对的存在物</b>。有型号与价格才是「已上市」；有公开演示或注册试验才算「实验室 / 临床」；只有零散环节被验证是「单点突破」；要多个尚不存在的突破叠加是「缺多环」；受已知物理与规模约束不成立是「规模 / 物理不允许」；换成任何技术都同样成立的是「非技术命题」。最后两档的区别很重要：前者是<b>这条路走不通</b>，后者是<b>压根不在这条路上</b>。</p>';
+  h+="<table class=w><thead><tr><th>档位</th><th>定义</th><th>条数</th><th>条目（点编号进条目页）</th></tr></thead><tbody>";
+  stKeys.forEach(k=>{
+    const m=DB.mapSt[k],arr=IT.filter(d=>d.st===k);
+    h+='<tr><td style="white-space:nowrap">'+stPill(k)+"</td><td class=note style=\"font-size:12px\">"+esc(m.def)+'</td><td><b>'+arr.length+'</b></td><td style="font-size:11.5px;line-height:2">'+(arr.length?arr.map(d=>aItem(d.id,d.id)).join(" "):"<span class=note>—</span>")+"</td></tr>";
+  });
+  h+="</tbody></table>";
+  h+='<h2>状态 × 难度：两者不重合</h2><p class=note>如果「已上市」意味着「技术简单」，这张矩阵应该只有左上角有数。实际不是：<b>'+shipOdd+' 条已上市条目的难度在 L2 以上</b>，而<b>'+labLow+' 条「实验室 / 临床」条目的难度只有 L1</b>。原因是落地形态由<b>有没有人为它付钱</b>决定，不由原理有多难决定。</p>';
+  h+='<table class="mtx"><thead><tr><th>状态 \\ 难度</th>'+LVS.map(l=>'<th style="color:'+l.c+'">'+l.k+"</th>").join("")+"<th>合计</th></tr></thead><tbody>";
+  stKeys.forEach(k=>{
+    const m=DB.mapSt[k];let tot=0;
+    const cells=lvKeys.map(l=>{const c=IT.filter(d=>d.st===k&&lvKey(d)===l).length;tot+=c;return c;});
+    h+='<tr><th style="color:'+m.c+';font-weight:700">'+esc(m.name)+"</th>"+cells.map(c=>"<td"+(c?"":' style="color:#30363d"')+">"+c+"</td>").join("")+"<td><b>"+tot+"</b></td></tr>";
+  });
+  h+="</tbody></table>";
+  h+='<h2>两个容易误读的地方</h2><div class=grid>';
+  h+='<div class="card"><b>「已上市」不等于「先进」</b><p class=note>已上市条目里难度在 L2 以上的有 '+shipOdd+' 条（'+IT.filter(d=>d.st==="ship"&&d.lv>=2).map(d=>aItem(d.id,d.id)).join("、")+'）——它们在原理上并不简单，但商业形态成立，所以「今天能买」。反过来，C02 义体控制之所以在「已上市」，靠的是脑控机械臂这条临床线，不是作品里的光学义眼。</p></div>';
+  h+='<div class="card"><b>「非技术命题」不是「永远做不到」</b><p class=note>它指的是一条设定<b>换成任何技术都同样成立</b>：C15 脱离肉体以 AI 存续、C18「人性值」这类，追问的是定义而不是器件。把它们留在表里，是为了让「技术能解决什么」的边界显形——不是给它们判死刑。</p></div>';
+  h+="</div>";
+  h+='<p class=note>逐条看：<a href="#/table">完整表格</a> 可按这六档筛选；任一<a href="#/table">条目页</a>顶部的锚点条写明它落在哪一档、缺的是零件还是指标。相关：<a href="#/scale">结论与难度标尺</a> · <a href="#/reality">现实基线</a> · <a href="#/cases">现实案例对照组</a>。</p>';
   return h;
 }
 
@@ -1563,9 +1615,16 @@ function viewGlossary(){
 function aItem2(href,label){return '<a href="'+href+'">'+label+"</a>";}
 
 function viewIndex(){
-  let h="<h1>索引与反查</h1><p class=lead>按主题 / 作品 / 难度 / 伦理议题反查编号，点击直达条目页。</p>";
+  let h="<h1>索引与反查</h1><p class=lead>六种口径反查编号：<b>现实侧各层</b>（技术 / 设备 / 适应证 / 监管 / 可复现）→ <b>六档落地状态</b> → <b>主题 / 作品</b> → <b>难度 / 伦理 / 法律</b>。现实侧排在最前，因为它的编号（T / D / I / G / O / R）最难记，也最常被单独引用。</p>";
+  h+='<h2>按落地状态（想象 → 现实）</h2><p class=note>把「一条想象离落地有多远」做成一列可直接点的编号。六档的定义与判定标准见 <a href="#/mapst">六档落地状态</a>；同一档里的条目，缺的东西往往是同一样。</p>';
+  h+="<table class=w><thead><tr><th>档位</th><th>条数</th><th>条目</th></tr></thead><tbody>";
+  Object.keys(DB.mapSt).forEach(k=>{
+    const arr=IT.filter(d=>d.st===k);if(!arr.length)return;
+    h+='<tr><td style="white-space:nowrap">'+stPill(k)+"</td><td>"+arr.length+'</td><td style="font-size:11.5px;line-height:1.9">'+arr.map(d=>aItem(d.id,d.id)).join(" ")+"</td></tr>";
+  });
+  h+="</tbody></table>";
   h+="<h2>技术条目</h2>";
-  h+='<p class=note>技术层没有对应的虚构条目，因此单列：<a href="#/tech">技术条目总览（'+DB.tech.list.length+'）→</a>。此处只做编号速查。</p>';
+  h+='<p class=note>现实侧的零件层，'+DB.tech.list.length+' 条，与想象条目双向挂接——这里只做编号速查，完整定义（怎么做 / 典型数值 / 失效模式）在 <a href="#/tech">技术条目总览</a>。</p>';
   h+="<table class=w><thead><tr><th>分类</th><th>条目</th></tr></thead><tbody>";
   DB.tech.cats.forEach(c=>h+="<tr><td>"+aItem2("#/tech",esc(c.name))+"</td><td>"+c.ids.map(k=>aItem2("#/tech/"+k,k)).join(" ")+"</td></tr>");
   h+="</tbody></table>";
@@ -1701,7 +1760,8 @@ function bindTable(){
 function viewAbout(){
   return "<h1>关于本 Wiki</h1><p class=lead>范围、口径与资料说明。</p>"+
   '<div class="card"><h3 style="margin-top:0">范围</h3><p class="note">游戏 / 影视 / 动画 / 小说中对脑机接口（BCI）及其延伸功能（意识上传、全沉浸、脑联网、神经安全）的想象。重点为《赛博朋克 2077》体系与《黑客帝国》全系列。</p></div>'+
-  '<div class="card"><h3 style="margin-top:0">评估口径</h3><p class="note">难度＝「按设定原样实现」的难度，不是「做个神似替代品」的难度。判定顺序：先定信息流类型 → 是否涉及写入 → 是否涉及人格 / 主体性 → 对照现实基线定级。凡涉及「复制＝本人」的一律不低于 L4。「—」为叙事 / 玩法机制，不参与统计。</p></div>'+
+  '<div class="card"><h3 style="margin-top:0">评估口径</h3><p class="note">难度＝「按设定原样实现」的难度，不是「做个神似替代品」的难度。判定顺序：先定信息流类型 → 是否涉及写入 → 是否涉及人格 / 主体性 → 对照现实基线定级。凡涉及「复制＝本人」的一律不低于 L4。「—」为叙事 / 玩法机制，不参与统计。难度与<b>落地形态</b>是两件事：前者问原理能不能成立，后者问今天以什么形态存在，见 <a href="#/mapst">六档落地状态</a>。</p></div>'+
+  '<div class="card"><h3 style="margin-top:0">两侧是什么关系（v2.0 重述）</h3><p class="note">本站两侧<b>等重</b>，关系是<b>同一张表的两列</b>，不是主干与附注。想象侧 '+IT.length+' 条是<b>想象史</b>——游戏 / 影视 / 动画 / 小说里人类反复想要的东西与反复害怕的东西。它的价值不在预测哪一年会实现，而在给出一个稳定的问题集：<b>写入、全感官替代、主体连续性、神经安全</b>。现实侧六层回答同一个问题的另一半：这些愿望今天解到了哪一步、谁在解、卡在哪。<br>每条想象因此挂着两样<b>不能混为一谈</b>的东西——它需要的<b>技术零件</b>，和卡住它的<b>量化指标</b>。零件可以买、可以等；指标只能靠实验。这个区分是 v1.5 加的，它把「差在哪」从一句感慨变成了可核对的清单。见 <a href="#/mapst">六档落地状态</a>。</p></div>'+
   '<div class="card"><h3 style="margin-top:0">技术条目层（v1.1 新增）</h3><p class="note">本站原先只做了「虚构那一侧」的索引，现实侧只有案例与组合，缺一层可引用的技术骨架。v1.1 补上：<b>'+DB.tech.list.length+' 条技术条目</b>，分五类——信号模态 8 / 实验范式 7 / 评价指标 8 / 解码算法 8 / 器件与工程 9。每条固定四段：<b>定义、怎么做、典型数值区间、失效模式</b>，另列代表系统与来源。这一层的用途不是科普，而是给全站一个可反驳的锚：<b>凡是说不出数值区间与失效条件的能力，就是还没被工程化的能力</b>。技术条目与案例双向互链——案例页列出用到的技术，技术页反过来列出对应案例。详见 <a href="#/tech">技术条目</a>。</p></div>'+
   '<div class="card"><h3 style="margin-top:0">设备目录与适应证（v1.2 新增）</h3><p class="note">技术条目讲方法，这一层讲机器与人。两页：<b>'+DB.dev.list.length+' 台设备</b>（科研级 7 / 非侵入消费与康复 11 / 植入与介入 12），每台给通道数、采样率、侵入性、<b>认证状态（科研用 / CE / NMPA 二类 / 三类 / FDA 510(k) / IDE 在研）</b>、价格口径与局限；<b>'+DB.ind.list.length+' 个临床适应证</b>，每个给中国患者规模（附口径）、丧失了哪些功能、<b>现有疗法的天花板在哪</b>、BCI 补哪一段、关键疗效终点、为什么难、监管与支付路径。两页双向互链：设备页列出它服务的适应证，适应证页列出可用设备。这一层唯一的判断标准是「现有疗法已经做到哪一步」——够用的地方，BCI 就没有位置。详见 <a href="#/dev">设备与产品目录</a> 与 <a href="#/ind">临床适应证图谱</a>。</p></div>'+
   '<div class="card"><h3 style="margin-top:0">监管与可复现（v1.3 新增）</h3><p class="note">前两层回答「怎么做到」与「买哪台」，这两层回答剩下的两个问题：<b>怎么合法地卖</b>、<b>凭什么相信</b>。<a href="#/reg">监管与准入路径</a> '+DB.reg.list.length+' 条，分中国注册 / 海外准入 / 支付收费 / 临床伦理 / 数据合规五组，每条给可核对的法定时限、实际周期、费用与卡点；<a href="#/rep">可复现层</a> '+DB.rep.list.length+' 项，含公开数据集、开源工具链、三档评估协议与一张八条复现清单。这一层的写法与前面一致：<b>能查的写数字，查不到的写口径，判断性的话单独标出来</b>。</p></div>'+
@@ -1711,20 +1771,81 @@ function viewAbout(){
   '<div class="card"><h3 style="margin-top:0">现有科技组合（2026-11-05 新增）</h3><p class="note">与难度标尺正交的第四个数轴：<b>不发明任何新东西，只把今天买得到的部件拼起来能做到什么</b>。'+DB.compose.list.length+' 条组合分三档——<b>A 现货可拼</b>（不需审批，今天能出原型）、<b>B 需器件与审批</b>（部件齐全，6–36 个月）、<b>C 技术成立但制度未开</b>（没有适应证 / 收费编码，或直接被现行法禁止）。每条给出「部件 → 怎么拼 → 谁已做到 → 真正卡点 → 与作品版差距」。凡属想象级而非工程级的（如记忆写入），明确排除并说明理由。详见 <a href="#/compose">现有科技组合</a>。</p></div>'+
   '<div class="card"><h3 style="margin-top:0">资料与免责</h3><p class="note">作品设定以官方文本与游戏内资料为准；现实进展以 2025–2026 年公开报道与《State of Brain Emulation Report》(2025) 为锚，行业数字仅用于量级参照。两处需以原作为准：①《Cyberpunk: Edgerunners》第二季（2026）的 Soulkiller 军备竞赛与 Capri 设定依据 2026 年媒体报道整理；②《The Matrix Online》已于 2009 关服，其设定依据当时官方资料。<b>伦理分级与法律状态均为分析工具，不构成法律或合规意见</b>；真实项目应走机构伦理审查并咨询执业律师。跨境业务须逐法域重判——同一行为在不同国家结论可能完全相反。</p></div>'+
   '<div class="card"><h3 style="margin-top:0">热门作品总结与作品库</h3><p class="note">2026-11-05 两批扩充：10 篇深度总结（攻壳机动队、刀剑神域、黑镜、万神殿、碳变、SOMA、神经漫游者/雪崩、西部世界、盗梦空间、头号玩家）＋ 190 部作品库标准总结（游戏 49 / 动画漫画 29 / 电影 58 / 剧集 19 / 小说 35），每篇含热度定位、核心想象难度表、代表场景、现实对照与两部重点作品对照。作品库条目多数暂无全表独立功能条目，难度按同一 L1–L5 标尺独立评估；条目关联与术语链接复用全表数据。</p></div>'+
-  '<div class="card"><h3 style="margin-top:0">开源与编辑</h3><p class="note">本 Wiki 开源，托管在 <a href="https://github.com/yongshoushou/bci-wiki" target="_blank" rel="noopener">GitHub · yongshoushou/bci-wiki</a>，在线地址 <a href="https://yongshoushou.github.io/bci-wiki/" target="_blank" rel="noopener">yongshoushou.github.io/bci-wiki</a>。任何人可<b>提 Issue / 发 PR</b> 参与修订：仓库里对应文件点右上角铅笔即可在网页上直接改。代码 MIT，词条内容 CC BY-SA 4.0，详见仓库 README 与 CONTRIBUTING。</p></div>'+
+  '<div class="card"><h3 style="margin-top:0">开源与编辑</h3><p class="note">本 Wiki 开源，托管在 <a href="https://github.com/yongshoushou/bci-wiki" target="_blank" rel="noopener">GitHub · yongshoushou/bci-wiki</a>，在线地址 <a href="https://bci-imagination-wiki.app.workbuddy.host/" target="_blank" rel="noopener">bci-imagination-wiki.app.workbuddy.host</a>（国内直连）／ <a href="https://yongshoushou.github.io/bci-wiki/" target="_blank" rel="noopener">yongshoushou.github.io/bci-wiki</a>（GitHub Pages）。任何人可<b>提 Issue / 发 PR</b> 参与修订：仓库里对应文件点右上角铅笔即可在网页上直接改。代码 MIT，词条内容 CC BY-SA 4.0，详见仓库 README 与 CONTRIBUTING。</p></div>'+
   '<div class="card"><h3 style="margin-top:0">文件</h3><p class="note">本页数据由 <b>build_wiki.js</b> 从「直观版.html」自动提取生成，条目零分歧。<a href="'+fileHref('脑机接口功能想象_直观版.html')+'">表格筛选版</a> · <a href="'+fileHref('脑机接口功能想象对照表.md')+'">Markdown 完整版</a>。</p></div>'+
   "<p class=note>整理：Arthur+Codex · 2026-11-04 · 开源：github.com/yongshoushou/bci-wiki</p>";
 }
 
 // ---------- 路由 ----------
+// v2.0 旧链接保活：hash 路由发不了 301，只能在客户端做等价的软重定向。
+// 三件事：① 别名（历史上用过的写法 / 常见简写）② 编号大小写归一 ③ 找不到时给近似建议。
+const ALIAS={
+  tbl:"table",tables:"table",list:"table",sheet:"table",
+  techs:"tech",technology:"tech",technologies:"tech",
+  devices:"dev",device:"dev",hardware:"dev",
+  indications:"ind",indication:"ind",clinical:"ind",
+  regulation:"reg",regs:"reg",regulatory:"reg",approval:"reg",
+  reproducible:"rep",repro:"rep",datasets:"rep",
+  kits:"compose",kit:"compose",combo:"compose",stack:"compose",
+  map:"mapst",maps:"mapst",status:"mapst",landing:"mapst",
+  idx:"index",catalog:"index",
+  aboutus:"about",faq:"about",method:"about",
+  home2:"home",start:"home",overview:"home"
+};
+// 这些路由的第二段是「字母+数字」编号，大小写必须归一（T22 / t22 / Tech/t22 都该到同一页）
+const KEYSEG={tech:1,dev:1,ind:1,reg:1,rep:1,case:1,item:1,ethics:1,law:1,lv:1};
+const ROUTES=["tech","dev","ind","reg","rep","cases","case","compose","item","mapst","scale","ethics","law","table","index","glossary","about","reality","hot","work","concept","group","lv","home"];
+function lev(a,b){
+  const m=a.length,n=b.length,d=[];
+  for(let i=0;i<=m;i++){d[i]=[i];}
+  for(let j=0;j<=n;j++){d[0][j]=j;}
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+  return d[m][n];
+}
+function normSeg(seg){
+  if(!seg.length)return seg;
+  let t=seg[0];
+  const al=ALIAS[String(t).toLowerCase()];
+  if(al)t=al;
+  else{const lo=String(t).toLowerCase();if(ROUTES.indexOf(lo)>=0)t=lo;}
+  const out=[t];
+  for(let i=1;i<seg.length;i++){
+    let s=seg[i];
+    if(KEYSEG[t]&&/^[a-z]\d{1,2}$/i.test(s))s=s.toUpperCase();
+    out.push(s);
+  }
+  return out;
+}
+const RNAME={tech:"技术条目",dev:"设备与产品目录",ind:"临床适应证图谱",reg:"监管与准入路径",rep:"可复现层",cases:"现实案例对照组",case:"现实案例",compose:"现有科技组合",item:"功能条目",mapst:"六档落地状态",scale:"结论与难度标尺",ethics:"伦理标准",law:"法律标准",table:"完整表格",index:"索引与反查",glossary:"术语表",about:"关于",reality:"现实基线",hot:"热门作品总结",work:"作品页",concept:"术语",group:"主题概念",lv:"等级",home:"首页"};
+// 未知路由：先猜你要去哪，再给三条兜底入口
+function view404(t,seg){
+  const near=[];
+  ROUTES.forEach(r=>{const d=lev(t,r);if(d<=2||(t.length>=2&&r.indexOf(t)===0))near.push([d,r]);});
+  near.sort((a,b)=>a[0]-b[0]);
+  const tips=near.slice(0,4).map(x=>'<a class=tile href="#/'+x[1]+'"><b>#/'+x[1]+"</b><span>"+esc(RNAME[x[1]]||"")+"</span></a>").join("");
+  return "<h1>没有这一页</h1><p class=lead>地址里的 <code>#/"+esc(seg.join("/"))+"</code> 对不上任何页面。旧版本用过的写法（<code>tbl</code> / <code>devices</code> / <code>kits</code> / 小写编号等）会自动跳转，这一条不在名单里。</p>"+
+    (tips?'<h2>你要找的可能是</h2><div class=grid>'+tips+"</div>":"")+
+    '<h2>三个常去的入口</h2><div class=grid>'+
+    '<a class=tile href="#/"><b>首页</b><span>两侧入口总览与现实侧五层</span></a>'+
+    '<a class=tile href="#/tech"><b>技术条目</b><span>'+DB.tech.list.length+' 条可引用的零件</span></a>'+
+    '<a class=tile href="#/table"><b>完整表格</b><span>'+IT.length+' 条想象，可按落地状态筛</span></a>'+
+    "</div><p class=note>按 <b>/</b> 可聚焦搜索框；或直接改地址栏里的编号。</p>";
+}
+
 function parseHash(){
   const raw=location.hash.replace(/^#\/?/,"");
   const i=raw.indexOf("?"),p=i>=0?raw.slice(0,i):raw,q=i>=0?raw.slice(i+1):"";
   return {seg:p.split("/").filter(Boolean),q:new URLSearchParams(q)};
 }
 function route(){
-  const {seg,q}=parseHash();
+  const raw=parseHash();
+  const seg=normSeg(raw.seg), q=raw.q;
   const t=seg[0]||"home";
+  // 地址栏与规范路由不一致（别名 / 大小写）时静默改写，不新增历史记录，后退仍可用
+  const qs=raw.q.toString();
+  const canon="#/"+seg.join("/")+(qs?"?"+qs:"");
+  const was="#/"+raw.seg.join("/")+(qs?"?"+qs:"");
+  if(seg.length&&canon!==was){try{history.replaceState(null,"",canon);}catch(e){}}
   let html="",crumb=[["首页","#/"]];
   if(t==="home")html=viewHome();
   else if(t==="scale"){html=viewScale();crumb.push(["结论与难度标尺",""]);}
@@ -1770,7 +1891,9 @@ function route(){
     if(seg[1]){const x=KSD[seg[1]];html=x?viewKit(seg[1]):notFound("科技组合 "+seg[1]);crumb.push(["科技组合","#/compose"],[x?x.k+" "+x.name:"",""]);}
     else{html=viewCompose();crumb.push(["现有科技组合",""]);}
   }
-  else if(t==="reality"){html=viewReality();crumb.push(["现实基线",""]);}  else if(t==="about"){html=viewAbout();crumb.push(["关于",""]);}
+  else if(t==="reality"){html=viewReality();crumb.push(["现实基线",""]);}
+  else if(t==="mapst"){html=viewMapSt();crumb.push(["六档落地状态",""]);}
+  else if(t==="about"){html=viewAbout();crumb.push(["关于",""]);}
   else if(t==="item"){const d=BY[seg[1]];html=d?viewItem(d):notFound("条目 "+seg[1]);crumb.push(["功能条目","#/index"],[seg[1]||"",""]);}
   else if(t==="work"){const w=WM[seg[1]];html=w?viewWork(w):notFound("作品 "+seg[1]);crumb.push(["作品",""],[w?w.name:"",""]);}
   else if(t==="hot"){const w=HM[seg[1]];html=w?viewHot(w):notFound("热门作品 "+seg[1]);crumb.push(["热门作品总结",""],[w?w.name:"",""]);}
@@ -1778,9 +1901,15 @@ function route(){
   else if(t==="group"){const g=GM[seg[1]];html=g?viewGroup(g):notFound("主题 "+seg[1]);crumb.push(["主题概念",""],[g?g.name:"",""]);}
   else if(t==="glossary"){html=viewGlossary();crumb.push(["术语表",""]);}
   else if(t==="index"){html=viewIndex();crumb.push(["索引与反查",""]);}
-  else if(t==="table"){TBL.q=q.get("q")||"";if(q.get("q")){TBL.g="ALL";TBL.lv="ALL";TBL.e="ALL";TBL.v="ALL";}html=viewTable();crumb.push(["完整表格",""]);}
+  else if(t==="table"){
+    // v2.0：支持 #/table?st=ship 直达某一档落地状态（首页六档条与 mapst 页都用它）
+    const qst=q.get("st")||"",qq=q.get("q")||"";
+    TBL.q=qq;TBL.g="ALL";TBL.lv="ALL";TBL.e="ALL";TBL.v="ALL";
+    TBL.st=(DB.mapSt[qst]&&!qq)?qst:"ALL";
+    html=viewTable();crumb.push(["完整表格",""]);
+  }
   else if(t==="lv"){const x=LVX[seg[1]];html=viewLevel(seg[1]);crumb.push([x?x.axis+"等级":"等级",x?"#/"+x.ax:""],[x?(x.name.indexOf(x.k)===0?x.name:x.k+" "+x.name):"",""]);}
-  else html=notFound("页面 "+t);
+  else html=view404(t,seg);
   $("#crumb").innerHTML=crumb.map((c,i)=>(i?"<span>/</span>":"")+(c[1]?"<a href=\""+c[1]+"\">"+esc(c[0])+"</a>":"<b>"+esc(c[0])+"</b>")).join("");
   $("#view").innerHTML=html+footerHtml();
   bindTable();
@@ -1790,37 +1919,69 @@ function route(){
 }
 
 // ---------- 全局搜索 ----------
-// 启动时把各字段拼成小写 haystack 存一次；原来每敲一个键都要重做 300+ 次 join+toLowerCase
+// v2.0：不再「工具页优先」。每条记录带权重（现实侧 > 判断框架 > 想象侧 > 作品 / 术语），
+// 再按命中质量排序——精确命中可以越级，让「搜 T22 先给技术条目」这件事成立。
+// 启动时把各字段拼成小写 haystack 存一次，避免每次按键重做 join+toLowerCase。
 const SIDX=(()=>{
-  const a=[],add=(t,h,k,f)=>a.push({t:t,h:h,k:k,s:f.join(" ").toLowerCase()});
-  IT.forEach(d=>add(d.id+" · "+d.fn,"#/item/"+d.id,"条目",[d.id,d.fn,d.work,d.desc,d.note]));
-  DB.works.forEach(w=>add(w.name,"#/work/"+w.key,"作品",[w.name,w.sub,w.intro]));
-  DB.hot.concat(DB.lib).forEach(w=>add(w.name,"#/hot/"+w.key,w.deep?"热门":"作品库",[w.name,w.sub,w.hot,w.profile]));
-  DB.glossary.forEach(c=>add(c.term,"#/concept/"+c.key,"术语",[c.term,(c.aliases||[]).join(" "),c.def]));
-  DB.groups.forEach(g=>add(g.name,"#/group/"+g.key,"主题",[g.name,g.desc]));
-  DB.ethics.dims.forEach(x=>add(x.k+" "+x.name,"#/ethics/"+x.k,"伦理",[x.k,x.name,x.en,x.q,x.def,x.real]));
-  DB.ethics.levels.forEach(x=>add(x.k+" "+x.name,"#/ethics","等级",[x.k,x.name,x.def]));
-  DB.law.dims.forEach(x=>add(x.k+" "+x.name,"#/law/"+x.k,"法律",[x.k,x.name,x.en,x.q,x.def,x.law,x.gap]));
-  DB.law.levels.forEach(x=>add(x.k+" "+x.name,"#/law","法律状态",[x.k,x.name,x.def]));
-  DB.tech.list.forEach(x=>add(x.k+" "+x.name,"#/tech/"+x.k,"技术",[x.k,x.name,x.en,x.def,x.how,x.fail].concat((x.vals||[]).map(v=>v[0]+" "+v[1]))));
-  DB.tech.cats.forEach(x=>add(x.name,"#/tech","技术分类",[x.name,x.en,x.desc]));
-  DB.dev.list.forEach(x=>add(x.k+" "+x.name,"#/dev/"+x.k,"设备",[x.k,x.name,x.en,x.vendor,x.country,x.ch,x.fs,x.inv,x.cert,x.price,x.sig,x.pos]));
-  DB.dev.tiers.forEach(x=>add(x.name,"#/dev","设备档位",[x.name,x.en,x.desc]));
-  DB.ind.list.forEach(x=>add(x.k+" "+x.name,"#/ind/"+x.k,"适应证",[x.k,x.name,x.en,x.pop,x.loss,x.now,x.bci,x.reg]));
-  DB.reg.list.forEach(x=>add(x.k+" "+x.name,"#/reg/"+x.k,"监管",[x.k,x.name,x.en,x.juris,x.who,x.head,x.gate].concat(x.vals.map(v=>v[0]+" "+v[1]))));
-  DB.rep.list.forEach(o=>add(o.k+" "+o.name,"#/rep/"+o.k,"可复现",[o.k,o.name,o.en,o.scale,o.access,o.use,o.limit].concat(o.vals.map(v=>v[0]+" "+v[1]))));
+  const a=[],add=(t,h,k,f,w)=>a.push({t:t,h:h,k:k,w:w,s:f.join(" ").toLowerCase()});
+  IT.forEach(d=>add(d.id+" · "+d.fn,"#/item/"+d.id,"条目",[d.id,d.fn,d.work,d.desc,d.note,d.gap,d.basis],55));
+  DB.works.forEach(w=>add(w.name,"#/work/"+w.key,"作品",[w.name,w.sub,w.intro],40));
+  DB.hot.concat(DB.lib).forEach(w=>add(w.name,"#/hot/"+w.key,w.deep?"热门":"作品库",[w.name,w.sub,w.hot,w.profile],40));
+  DB.glossary.forEach(c=>add(c.term,"#/concept/"+c.key,"术语",[c.term,(c.aliases||[]).join(" "),c.def],45));
+  DB.groups.forEach(g=>add(g.name,"#/group/"+g.key,"主题",[g.name,g.desc],45));
+  DB.ethics.dims.forEach(x=>add(x.k+" "+x.name,"#/ethics/"+x.k,"伦理",[x.k,x.name,x.en,x.q,x.def,x.real],70));
+  DB.ethics.levels.forEach(x=>add(x.k+" "+x.name,"#/ethics","等级",[x.k,x.name,x.def],70));
+  DB.law.dims.forEach(x=>add(x.k+" "+x.name,"#/law/"+x.k,"法律",[x.k,x.name,x.en,x.q,x.def,x.law,x.gap],70));
+  DB.law.levels.forEach(x=>add(x.k+" "+x.name,"#/law","法律状态",[x.k,x.name,x.def],70));
+  DB.tech.list.forEach(x=>add(x.k+" "+x.name,"#/tech/"+x.k,"技术",[x.k,x.name,x.en,x.def,x.how,x.fail].concat((x.vals||[]).map(v=>v[0]+" "+v[1])),100));
+  DB.tech.cats.forEach(x=>add(x.name,"#/tech","技术分类",[x.name,x.en,x.desc],95));
+  DB.dev.list.forEach(x=>add(x.k+" "+x.name,"#/dev/"+x.k,"设备",[x.k,x.name,x.en,x.vendor,x.country,x.ch,x.fs,x.inv,x.cert,x.price,x.sig,x.pos],100));
+  DB.dev.tiers.forEach(x=>add(x.name,"#/dev","设备档位",[x.name,x.en,x.desc],95));
+  DB.ind.list.forEach(x=>add(x.k+" "+x.name,"#/ind/"+x.k,"适应证",[x.k,x.name,x.en,x.pop,x.loss,x.now,x.bci,x.reg],100));
+  DB.reg.list.forEach(x=>add(x.k+" "+x.name,"#/reg/"+x.k,"监管",[x.k,x.name,x.en,x.juris,x.who,x.head,x.gate].concat(x.vals.map(v=>v[0]+" "+v[1])),95));
+  DB.rep.list.forEach(o=>add(o.k+" "+o.name,"#/rep/"+o.k,"可复现",[o.k,o.name,o.en,o.scale,o.access,o.use,o.limit].concat(o.vals.map(v=>v[0]+" "+v[1])),95));
   return a;
 })();
-const SSTATIC=[["设备与产品目录","#/dev","标准"],["临床适应证图谱","#/ind","标准"],["监管与准入路径","#/reg","标准"],["可复现层（数据集与工具）","#/rep","标准"],["技术条目（骨架层）","#/tech","标准"],["法律分类标准（现行法判断）","#/law","标准"],["伦理道德分类标准","#/ethics","标准"],["结论与难度标尺","#/scale","标准"],["现实基线","#/reality","标准"],["现实案例对照组","#/cases","标准"],["现有科技组合","#/compose","标准"],["完整表格（可筛选）","#/table","工具"],["索引与反查","#/index","工具"],["术语表","#/glossary","工具"]]
-  .map(x=>({t:x[0],h:x[1],k:x[2],s:x[0].toLowerCase()}));
+const SSTATIC=[
+  ["技术条目（零件层）","#/tech","标准",98],
+  ["设备与产品目录","#/dev","标准",98],
+  ["临床适应证图谱","#/ind","标准",98],
+  ["监管与准入路径","#/reg","标准",93],
+  ["可复现层（数据集与工具）","#/rep","标准",93],
+  ["现实案例对照组","#/cases","标准",88],
+  ["现有科技组合","#/compose","标准",88],
+  ["六档落地状态（想象 → 现实）","#/mapst","标准",76],
+  ["法律分类标准（现行法判断）","#/law","标准",75],
+  ["伦理道德分类标准","#/ethics","标准",75],
+  ["结论与难度标尺","#/scale","标准",72],
+  ["现实基线","#/reality","标准",72],
+  ["完整表格（可筛选）","#/table","工具",58],
+  ["索引与反查","#/index","工具",55],
+  ["术语表","#/glossary","工具",50]
+].map(x=>({t:x[0],h:x[1],k:x[2],w:x[3],s:x[0].toLowerCase()}));
+// 命中质量 + 层级权重。精确命中和编号前缀都能越级；
+// 只命中正文（标题不含关键词）的记录权重砍到 1/5，避免大条目靠长正文霸榜。
+function sScore(r,k){
+  const t=r.t.toLowerCase();
+  let b=0,inTitle=true;
+  if(t===k)b=3000;
+  else if(t.indexOf(k)===0)b=200;
+  else if(t.indexOf(k)>0){
+    const i=t.indexOf(k);
+    b=" ·-—/：:".indexOf(t.charAt(i-1))>=0?120:20;
+  }
+  else inTitle=false;
+  return (inTitle?r.w*10:r.w*2)+b;
+}
 function suggest(q){
   const box=$("#suggest"),k=q.trim().toLowerCase();
   if(!k){box.innerHTML="";box.classList.remove("show");return;}
-  const res=[];
-  for(let i=SSTATIC.length-1;i>=0;i--){if(SSTATIC[i].s.indexOf(k)!==-1)res.push(SSTATIC[i]);}
-  for(let i=0;i<SIDX.length;i++){if(SIDX[i].s.indexOf(k)!==-1)res.push(SIDX[i]);}
-  const top=res.slice(0,10);
-  box.innerHTML=top.length?top.map(r=>'<a href="'+r.h+'"><span class="k">'+r.k+"</span><span>"+esc(r.t)+"</span></a>").join("")+'<div class="sg-foot">共 '+res.length+' 条 · 回车进入表格视图</div>':'<div class="sg-none">无结果</div>';
+  const hits=[];
+  for(let i=0;i<SSTATIC.length;i++){if(SSTATIC[i].s.indexOf(k)!==-1)hits.push(SSTATIC[i]);}
+  for(let i=0;i<SIDX.length;i++){if(SIDX[i].s.indexOf(k)!==-1)hits.push(SIDX[i]);}
+  hits.sort((a,b)=>sScore(b,k)-sScore(a,k));
+  const top=hits.slice(0,10);
+  box.innerHTML=top.length?top.map(r=>'<a href="'+r.h+'"><span class="k">'+r.k+"</span><span>"+esc(r.t)+"</span></a>").join("")+'<div class="sg-foot">共 '+hits.length+' 条 · 回车进入表格视图 · 按 <b>/</b> 随时聚焦</div>':'<div class="sg-none">没有命中。试试编号（T22 / C01）、型号（NEO），或者只打两个字。</div>';
   box.classList.add("show");
 }
 const gq=$("#gq");
