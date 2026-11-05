@@ -89,10 +89,10 @@ if (doc.indexOf(START) >= 0) {
   doc = doc.slice(0, i) + block + doc.slice(i);
   console.log("已插入 §19–§20");
 }
-// §16 指路条补一句（幂等）
+// §16 指路条补一句（幂等）；v2.3 生成「五张附表」后不要再追加「四张附表」旧行
 const guideOld = "- **两张附表**：技术天花板与年表见 §17，价格时效核验见 §18。";
 const guideNew = "- **四张附表**：技术天花板与年表见 §17，价格时效核验见 §18，作品 × 落地状态矩阵见 §19，常见问题见 §20。";
-if (doc.indexOf(guideNew) < 0) {
+if (!/\*\*[两四五]张附表\*\*/.test(doc)) {
   if (doc.indexOf(guideOld) >= 0) doc = doc.replace(guideOld, guideNew);
   else {
     const m = doc.match(/## 16\. 评估方法与免责说明[^\n]*\n/);

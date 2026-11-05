@@ -68,7 +68,7 @@ console.log("技术互链 = " + (bad.length ? "FAIL " + bad.join(",") : "OK"));
 
 // 6) 入口存在性
 bad = [];
-[["#/", "技术条目（基础层）"], ["#/index", "技术条目"], ["#/about", "技术条目层"], ["#/item/C02", "#/tech/"], ["#/case/R01", "用到的技术条目"]].forEach(([r, kw]) => {
+[["#/", "现实侧五层"], ["#/index", "技术条目"], ["#/about", "技术条目层"], ["#/item/C02", "#/tech/"], ["#/case/R01", "用到的技术条目"]].forEach(([r, kw]) => {
   const v = go(r);
   if (v.indexOf(kw) < 0) bad.push(r + "-no-entry");
 });

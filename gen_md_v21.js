@@ -107,9 +107,9 @@ if (doc.indexOf(START) >= 0) {
   doc = doc.slice(0, i) + block + doc.slice(i);
   console.log("已插入 §17–§18");
 }
-// §16 首行加一张指路条（幂等）
+// §16 首行加一张指路条（幂等；v2.3 起后续生成器会把它升级为「五张附表」，此处见到任意版本都不要再追加）
 const guide = "- **两张附表**：技术天花板与年表见 §17，价格时效核验见 §18。\n";
-if (doc.indexOf("**两张附表**") < 0) {
+if (!/\*\*[两四五]张附表\*\*/.test(doc)) {
   const m = doc.match(/## 16\. 评估方法与免责说明[^\n]*\n/);
   if (m) doc = doc.replace(m[0], m[0] + "\n" + guide);
 }

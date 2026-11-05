@@ -122,7 +122,7 @@ head = head.replace(/\s*$/, "\n\n");
 tail = tail.replace(evalRe, "## 13. 评估方法与免责说明");
 
 // 3) 版本与交叉引用
-head = head.replace(/\*\*版本\*\*：v1\.\d+\.\d+/, "**版本**：v1.2.0");
+head = head.replace(/\*\*版本\*\*：v1\.\d+\.\d+/, m => /v1\.[3-9]/.test(m) ? m : "**版本**：v1.2.0");
 if (head.indexOf("30 台设备见 §11") === -1) {
   head = head.replace("40 条技术条目见 §10。", "40 条技术条目见 §10，30 台设备见 §11，10 个适应证见 §12。");
 }
