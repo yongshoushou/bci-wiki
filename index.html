@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="Arthur+Codex">
 <meta name="created" content="2026-11-04">
-<meta name="project" content="2026-11-03-18-22-41">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f81f7'/%3E%3Ctext x='16' y='22.5' font-size='17' font-family='sans-serif' font-weight='700' fill='%23fff' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
 <title>脑机接口功能想象 · Wiki</title>
 <style>
 :root{--bg:#0d1117;--panel:#161b22;--panel2:#1c2128;--line:#30363d;--fg:#e6edf3;--muted:#8b949e;--dim:#6e7681;--accent:#58a6ff;--l1:#56d364;--l2:#d29922;--l3:#f0883e;--l4:#f85149;--l5:#a371f7;--ln:#6e7681}
@@ -40,7 +40,7 @@ nav summary .n{color:var(--dim);font-size:10.5px}
 nav details .body{padding-left:10px;border-left:1px solid var(--line);margin-left:12px}
 .side-foot{padding:14px 18px 24px;border-top:1px solid var(--line);color:var(--dim);font-size:11px}
 main{flex:1;min-width:0}
-.topbar{position:sticky;top:0;background:#0d1117ee;backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:11px 30px;display:flex;gap:14px;align-items:center;z-index:10}
+.topbar{position:sticky;top:0;background:#0d1117f9;border-bottom:1px solid var(--line);padding:11px 30px;display:flex;gap:14px;align-items:center;z-index:10}
 #menuBtn{display:none;background:var(--panel2);border:1px solid var(--line);color:var(--fg);border-radius:6px;padding:4px 9px;cursor:pointer;font-size:15px}
 .crumb{font-size:12px;color:var(--muted);display:flex;gap:7px;flex-wrap:wrap;min-width:0}
 .crumb span{color:var(--dim)}
@@ -154,8 +154,8 @@ footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:v
 .flow i{color:var(--dim);font-style:normal;font-size:11px}
 .tierb{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:5px;font-size:11.5px;font-weight:800;color:#0d1117;flex:none}
 @media(max-width:920px){
- .side{position:fixed;left:-300px;transition:left .2s;box-shadow:8px 0 30px #0008}
- .side.open{left:0}
+ .side{position:fixed;left:0;transform:translateX(-100%);transition:transform .2s ease-out;box-shadow:8px 0 30px #0008}
+ .side.open{transform:none}
  #menuBtn{display:block}
  .view{padding:22px 18px 70px}
  .topbar{padding:10px 16px}
@@ -256,6 +256,11 @@ function tierPill(k){const t=TVM[k];return '<span class="tierb" style="backgroun
 const $=s=>document.querySelector(s);
 function lvKey(d){return d.lv===-1?"Ln":"L"+d.lv;}
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+// 线上托管要求 sharecode，页面内的相对文件链接必须带上，否则点开是 403
+function fileHref(f){
+  const sc=new URLSearchParams(location.search).get("sharecode");
+  return sc?f+"?sharecode="+encodeURIComponent(sc):f;
+}
 
 // 正文内链：编号 + 术语主名 + 较长别名
 const LT=[];
@@ -265,12 +270,26 @@ DB.glossary.forEach(c=>{
 });
 IT.forEach(d=>LT.push({t:d.id,h:"#/item/"+d.id}));
 LT.sort((a,b)=>b.t.length-a.t.length);
+// 预计算：esc + 小写只在启动时做一次（原来每次 linkify 调用都要重算 129 次）
+const LTX=LT.map(L=>{const t=esc(L.t).toLowerCase();return t?{t:t,h:L.h}:null}).filter(Boolean);
+const LINKC=Object.create(null);
 function linkify(s){
-  const txt=esc(s),low=txt.toLowerCase(),hits=[];
-  LT.forEach(L=>{
-    const t=esc(L.t).toLowerCase();if(!t)return;
-    let i=0;while((i=low.indexOf(t,i))!==-1){hits.push([i,i+t.length,L.h]);i+=t.length;}
-  });
+  const key=String(s);
+  const hit=LINKC[key];
+  if(hit!==undefined)return hit;
+  const out=linkifyRaw(s);
+  LINKC[key]=out;
+  return out;
+}
+function linkifyRaw(s){
+  const txt=esc(s),low=txt.toLowerCase();
+  if(low.length<3)return txt;
+  const hits=[];
+  for(let n=0;n<LTX.length;n++){
+    const L=LTX[n],t=L.t;
+    let i=low.indexOf(t);
+    while(i!==-1){hits.push([i,i+t.length,L.h]);i=low.indexOf(t,i+t.length);}
+  }
   if(!hits.length)return txt;
   hits.sort((a,b)=>a[0]-b[0]||b[1]-a[1]);
   const merged=[];
@@ -294,16 +313,16 @@ function tree(){
   h+='<div class="grp">现实案例（'+DB.cases.list.length+"）</div>";
   DB.cases.meta.forEach(x=>{
     const arr=DB.cases.list.filter(c=>c.cat===x.k);if(!arr.length)return;
-    h+="<details><summary>"+esc(x.name)+' <span class="n">'+arr.length+"</span></summary><div class=\"body\">";
+    h+='<details data-g="cat:'+x.k+'"><summary>'+esc(x.name)+' <span class="n">'+arr.length+"</span></summary><template><div class=\"body\">";
     arr.forEach(c=>h+='<a class="row" href="#/case/'+c.k+'">'+c.k+" · "+esc(c.name)+"</a>");
-    h+="</div></details>";
+    h+="</div></template></details>";
   });
   h+='<div class="grp">科技组合（'+DB.compose.list.length+"）</div>";
   DB.compose.tiers.forEach(x=>{
     const arr=DB.compose.list.filter(c=>c.tier===x.k);if(!arr.length)return;
-    h+="<details><summary>"+x.k+" "+esc(x.name)+' <span class="n">'+arr.length+"</span></summary><div class=\"body\">";
+    h+='<details data-g="tier:'+x.k+'"><summary>'+x.k+" "+esc(x.name)+' <span class="n">'+arr.length+"</span></summary><template><div class=\"body\">";
     arr.forEach(c=>h+='<a class="row" href="#/compose/'+c.k+'">'+c.k+" · "+esc(c.name)+"</a>");
-    h+="</div></details>";
+    h+="</div></template></details>";
   });
   h+='<div class="grp">伦理议题（'+DB.ethics.dims.length+"）</div>";
   DB.ethics.dims.forEach(x=>h+='<a class="row" href="#/ethics/'+x.k+'">'+x.k+" "+esc(x.name)+' <span class="n">'+x.ids.length+"</span></a>");
@@ -316,9 +335,9 @@ function tree(){
   h+='<div class="grp">作品库（'+DB.lib.length+"）</div>";
   ["g","a","f","t","n"].forEach(c=>{
     const arr=DB.lib.filter(w=>w.cat===c);if(!arr.length)return;
-    h+="<details><summary>"+CATN[c]+' <span class="n">'+arr.length+"</span></summary><div class=\"body\">";
+    h+='<details data-g="lib:'+c+'"><summary>'+CATN[c]+' <span class="n">'+arr.length+"</span></summary><template><div class=\"body\">";
     arr.forEach(w=>h+='<a class="row" href="#/hot/'+w.key+'">'+esc(w.name)+"</a>");
-    h+="</div></details>";
+    h+="</div></template></details>";
   });
   h+='<div class="grp">主题概念</div>';
   DB.groups.forEach(g=>h+='<a class="row" href="#/group/'+g.key+'">'+esc(g.name)+"</a>");
@@ -327,20 +346,49 @@ function tree(){
   h+='<div class="grp">功能条目（'+IT.length+"）</div>";
   LVS.forEach(l=>{
     const arr=byLv[l.k];
-    h+="<details><summary>"+esc(l.name)+' <span class="n">'+arr.length+"</span></summary><div class=\"body\">";
+    h+='<details data-g="lv:'+l.k+'"><summary>'+esc(l.name)+' <span class="n">'+arr.length+"</span></summary><template><div class=\"body\">";
     arr.forEach(d=>h+='<a class="row" href="#/item/'+d.id+'">'+d.id+" · "+esc(d.fn)+"</a>");
-    h+="</div></details>";
+    h+="</div></template></details>";
   });
   h+='<div class="grp">工具</div>';
   [["完整表格（可筛选）","#/table"],["索引与反查","#/index"]].forEach(x=>h+='<a class="row" href="'+x[1]+'">'+x[0]+"</a>");
   $("#tree").innerHTML=h;
+  // toggle 不冒泡，逐个绑定（约 20 个 details，成本可忽略）
+  document.querySelectorAll("#tree details").forEach(d=>{
+    d.addEventListener("toggle",()=>{if(d.open)fillTree(d);});
+  });
+}
+// 目录树分组内容放在 <template> 里，展开时才搬进 DOM——首屏可少建约 440 个节点
+function fillTree(d){
+  const tpl=d.querySelector("template");
+  if(tpl){d.appendChild(tpl.content);tpl.remove();}
+  markOn();
+}
+function markOn(seg){
+  const href="#/"+(((seg||parseHash().seg).join("/"))||"");
+  const rows=document.querySelectorAll("#tree a.row");
+  for(let i=0;i<rows.length;i++)rows[i].classList.toggle("on",rows[i].getAttribute("href")===href);
+}
+function curGroup(seg){
+  const t=seg[0],k=seg[1];if(!k)return null;
+  if(t==="item"){const d=BY[k];return d?"lv:"+lvKey(d):null;}
+  if(t==="case"){const c=CSD[k];return c?"cat:"+c.cat:null;}
+  if(t==="compose"){const c=KSD[k];return c?"tier:"+c.tier:null;}
+  if(t==="hot"){
+    if(DB.hot.some(x=>x.key===k))return null;
+    const l=DB.lib.filter(x=>x.key===k)[0];
+    return l?"lib:"+l.cat:null;
+  }
+  return null;
 }
 function syncTree(seg){
-  const href="#/"+(seg.join("/")||"");
-  document.querySelectorAll("#tree a.row").forEach(a=>a.classList.toggle("on",a.getAttribute("href")===href));
-  document.querySelectorAll("#tree details").forEach(d=>{
-    if(d.querySelector("a.on"))d.open=true;
-  });
+  markOn(seg);
+  const g=curGroup(seg);if(!g)return;
+  const ds=document.querySelectorAll("#tree details");
+  for(let i=0;i<ds.length;i++){
+    const d=ds[i];
+    if(d.dataset.g===g&&!d.open)d.open=true;
+  }
 }
 
 // ---------- 视图 ----------
@@ -1072,8 +1120,10 @@ function drawTable(){
 }
 function bindTable(){
   const q=$("#tq");if(!q)return;
-  q.addEventListener("input",e=>{TBL.q=e.target.value;drawTable();});
-  q.addEventListener("keydown",e=>{if(e.key==="Escape"){e.target.value="";TBL.q="";drawTable();}});
+  // 防抖：连续输入时只在停顿后重建一次 67 行表格
+  let tmr=0;
+  q.addEventListener("input",e=>{const v=e.target.value;clearTimeout(tmr);tmr=setTimeout(()=>{TBL.q=v;drawTable();},90);});
+  q.addEventListener("keydown",e=>{if(e.key==="Escape"){clearTimeout(tmr);e.target.value="";TBL.q="";drawTable();}});
   $("#tg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;TBL.g=b.dataset.g;drawTable();});
   $("#tl").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;TBL.lv=b.dataset.l;drawTable();});
   if($("#te"))$("#te").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;TBL.e=b.dataset.e;drawTable();});
@@ -1092,7 +1142,7 @@ function viewAbout(){
   '<div class="card"><h3 style="margin-top:0">资料与免责</h3><p class="note">作品设定以官方文本与游戏内资料为准；现实进展以 2025–2026 年公开报道与《State of Brain Emulation Report》(2025) 为锚，行业数字仅用于量级参照。两处需以原作为准：①《Cyberpunk: Edgerunners》第二季（2026）的 Soulkiller 军备竞赛与 Capri 设定依据 2026 年媒体报道整理；②《The Matrix Online》已于 2009 关服，其设定依据当时官方资料。<b>伦理分级与法律状态均为分析工具，不构成法律或合规意见</b>；真实项目应走机构伦理审查并咨询执业律师。跨境业务须逐法域重判——同一行为在不同国家结论可能完全相反。</p></div>'+
   '<div class="card"><h3 style="margin-top:0">热门作品总结与作品库</h3><p class="note">2026-11-05 两批扩充：10 篇深度总结（攻壳机动队、刀剑神域、黑镜、万神殿、碳变、SOMA、神经漫游者/雪崩、西部世界、盗梦空间、头号玩家）＋ 190 部作品库标准总结（游戏 49 / 动画漫画 29 / 电影 58 / 剧集 19 / 小说 35），每篇含热度定位、核心想象难度表、代表场景、现实对照与两部重点作品对照。作品库条目多数暂无全表独立功能条目，难度按同一 L1–L5 标尺独立评估；条目关联与术语链接复用全表数据。</p></div>'+
   '<div class="card"><h3 style="margin-top:0">开源与编辑</h3><p class="note">本 Wiki 开源，托管在 <a href="https://github.com/yongshoushou/bci-wiki" target="_blank" rel="noopener">GitHub · yongshoushou/bci-wiki</a>，在线地址 <a href="https://yongshoushou.github.io/bci-wiki/" target="_blank" rel="noopener">yongshoushou.github.io/bci-wiki</a>。任何人可<b>提 Issue / 发 PR</b> 参与修订：仓库里对应文件点右上角铅笔即可在网页上直接改。代码 MIT，词条内容 CC BY-SA 4.0，详见仓库 README 与 CONTRIBUTING。</p></div>'+
-  '<div class="card"><h3 style="margin-top:0">文件</h3><p class="note">本页数据由 <b>build_wiki.js</b> 从「直观版.html」自动提取生成，条目零分歧。<a href="脑机接口功能想象_直观版.html">表格筛选版</a> · <a href="脑机接口功能想象对照表.md">Markdown 完整版</a>。</p></div>'+
+  '<div class="card"><h3 style="margin-top:0">文件</h3><p class="note">本页数据由 <b>build_wiki.js</b> 从「直观版.html」自动提取生成，条目零分歧。<a href="'+fileHref('脑机接口功能想象_直观版.html')+'">表格筛选版</a> · <a href="'+fileHref('脑机接口功能想象对照表.md')+'">Markdown 完整版</a>。</p></div>'+
   "<p class=note>整理：Arthur+Codex · 2026-11-04 · 开源：github.com/yongshoushou/bci-wiki</p>";
 }
 
@@ -1145,21 +1195,28 @@ function route(){
 }
 
 // ---------- 全局搜索 ----------
+// 启动时把各字段拼成小写 haystack 存一次；原来每敲一个键都要重做 300+ 次 join+toLowerCase
+const SIDX=(()=>{
+  const a=[],add=(t,h,k,f)=>a.push({t:t,h:h,k:k,s:f.join(" ").toLowerCase()});
+  IT.forEach(d=>add(d.id+" · "+d.fn,"#/item/"+d.id,"条目",[d.id,d.fn,d.work,d.desc,d.note]));
+  DB.works.forEach(w=>add(w.name,"#/work/"+w.key,"作品",[w.name,w.sub,w.intro]));
+  DB.hot.concat(DB.lib).forEach(w=>add(w.name,"#/hot/"+w.key,w.deep?"热门":"作品库",[w.name,w.sub,w.hot,w.profile]));
+  DB.glossary.forEach(c=>add(c.term,"#/concept/"+c.key,"术语",[c.term,(c.aliases||[]).join(" "),c.def]));
+  DB.groups.forEach(g=>add(g.name,"#/group/"+g.key,"主题",[g.name,g.desc]));
+  DB.ethics.dims.forEach(x=>add(x.k+" "+x.name,"#/ethics/"+x.k,"伦理",[x.k,x.name,x.en,x.q,x.def,x.real]));
+  DB.ethics.levels.forEach(x=>add(x.k+" "+x.name,"#/ethics","等级",[x.k,x.name,x.def]));
+  DB.law.dims.forEach(x=>add(x.k+" "+x.name,"#/law/"+x.k,"法律",[x.k,x.name,x.en,x.q,x.def,x.law,x.gap]));
+  DB.law.levels.forEach(x=>add(x.k+" "+x.name,"#/law","法律状态",[x.k,x.name,x.def]));
+  return a;
+})();
+const SSTATIC=[["法律分类标准（现行法判断）","#/law","标准"],["伦理道德分类标准","#/ethics","标准"],["结论与难度标尺","#/scale","标准"],["现实基线","#/reality","标准"],["完整表格（可筛选）","#/table","工具"],["索引与反查","#/index","工具"],["术语表","#/glossary","工具"]]
+  .map(x=>({t:x[0],h:x[1],k:x[2],s:x[0].toLowerCase()}));
 function suggest(q){
   const box=$("#suggest"),k=q.trim().toLowerCase();
   if(!k){box.innerHTML="";box.classList.remove("show");return;}
   const res=[];
-  IT.forEach(d=>{if([d.id,d.fn,d.work,d.desc,d.note].join(" ").toLowerCase().indexOf(k)!==-1)res.push({t:d.id+" · "+d.fn,h:"#/item/"+d.id,k:"条目"});});
-  DB.works.forEach(w=>{if([w.name,w.sub,w.intro].join(" ").toLowerCase().indexOf(k)!==-1)res.push({t:w.name,h:"#/work/"+w.key,k:"作品"});});
-  DB.hot.concat(DB.lib).forEach(w=>{if([w.name,w.sub,w.hot,w.profile].join(" ").toLowerCase().indexOf(k)!==-1)res.push({t:w.name,h:"#/hot/"+w.key,k:w.deep?"热门":"作品库"});});
-  DB.glossary.forEach(c=>{if([c.term,(c.aliases||[]).join(" "),c.def].join(" ").toLowerCase().indexOf(k)!==-1)res.push({t:c.term,h:"#/concept/"+c.key,k:"术语"});});
-  DB.groups.forEach(g=>{if([g.name,g.desc].join(" ").toLowerCase().indexOf(k)!==-1)res.push({t:g.name,h:"#/group/"+g.key,k:"主题"});});
-  DB.ethics.dims.forEach(x=>{if([x.k,x.name,x.en,x.q,x.def,x.real].join(" ").toLowerCase().indexOf(k)!==-1)res.push({t:x.k+" "+x.name,h:"#/ethics/"+x.k,k:"伦理"});});
-  DB.ethics.levels.forEach(x=>{if([x.k,x.name,x.def].join(" ").toLowerCase().indexOf(k)!==-1)res.push({t:x.k+" "+x.name,h:"#/ethics",k:"等级"});});
-  DB.law.dims.forEach(x=>{if([x.k,x.name,x.en,x.q,x.def,x.law,x.gap].join(" ").toLowerCase().indexOf(k)!==-1)res.push({t:x.k+" "+x.name,h:"#/law/"+x.k,k:"法律"});});
-  DB.law.levels.forEach(x=>{if([x.k,x.name,x.def].join(" ").toLowerCase().indexOf(k)!==-1)res.push({t:x.k+" "+x.name,h:"#/law",k:"法律状态"});});
-  [["法律分类标准（现行法判断）","#/law","标准"],["伦理道德分类标准","#/ethics","标准"],["结论与难度标尺","#/scale","标准"],["现实基线","#/reality","标准"],["完整表格（可筛选）","#/table","工具"],["索引与反查","#/index","工具"],["术语表","#/glossary","工具"]]
-    .forEach(x=>{if(x[0].toLowerCase().indexOf(k)!==-1)res.unshift({t:x[0],h:x[1],k:x[2]});});
+  for(let i=SSTATIC.length-1;i>=0;i--){if(SSTATIC[i].s.indexOf(k)!==-1)res.push(SSTATIC[i]);}
+  for(let i=0;i<SIDX.length;i++){if(SIDX[i].s.indexOf(k)!==-1)res.push(SIDX[i]);}
   const top=res.slice(0,10);
   box.innerHTML=top.length?top.map(r=>'<a href="'+r.h+'"><span class="k">'+r.k+"</span><span>"+esc(r.t)+"</span></a>").join("")+'<div class="sg-foot">共 '+res.length+' 条 · 回车进入表格视图</div>':'<div class="sg-none">无结果</div>';
   box.classList.add("show");
