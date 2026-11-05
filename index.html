@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="Arthur+Codex">
 <meta name="created" content="2026-11-04">
-<meta name="version" content="2.1.1">
+<meta name="version" content="2.1.2">
 <meta name="build" content="2026-11-05">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f81f7'/%3E%3Ctext x='16' y='22.5' font-size='17' font-family='sans-serif' font-weight='700' fill='%23fff' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
 <title>脑机接口功能想象 · Wiki</title>
@@ -521,7 +521,7 @@ function syncTree(seg){
 }
 
 // ---------- 版本 ----------
-const VER="v2.1.1", VERDATE="2026-11-05";
+const VER="v2.1.2", VERDATE="2026-11-05";
 function footerHtml(){
   return '<footer><b style="color:var(--muted)">'+VER+'</b> · 构建 '+VERDATE+
     " · "+IT.length+" 条想象 / "+DB.tech.list.length+" 条技术 / "+DB.dev.list.length+" 台设备 / "+DB.ind.list.length+" 个适应证 / "+DB.reg.list.length+" 条监管路径 / "+DB.rep.list.length+" 项可复现 / "+(DB.hot.length+DB.lib.length)+" 个作品页 / "+DB.cases.list.length+" 例现实对照 / "+DB.compose.list.length+
@@ -1868,7 +1868,7 @@ function viewAbout(){
   '<div class="card"><h3 style="margin-top:0">现有科技组合（2026-11-05 新增）</h3><p class="note">与难度标尺正交的第四个数轴：<b>不发明任何新东西，只把今天买得到的部件拼起来能做到什么</b>。'+DB.compose.list.length+' 条组合分三档——<b>A 现货可拼</b>（不需审批，今天能出原型）、<b>B 需器件与审批</b>（部件齐全，6–36 个月）、<b>C 技术成立但制度未开</b>（没有适应证 / 收费编码，或直接被现行法禁止）。每条给出「部件 → 怎么拼 → 谁已做到 → 真正卡点 → 与作品版差距」。凡属想象级而非工程级的（如记忆写入），明确排除并说明理由。详见 <a href="#/compose">现有科技组合</a>。</p></div>'+
   '<div class="card"><h3 style="margin-top:0">资料与免责</h3><p class="note">作品设定以官方文本与游戏内资料为准；现实进展以 2025–2026 年公开报道与《State of Brain Emulation Report》(2025) 为锚，行业数字仅用于量级参照。两处需以原作为准：①《Cyberpunk: Edgerunners》第二季（2026）的 Soulkiller 军备竞赛与 Capri 设定依据 2026 年媒体报道整理；②《The Matrix Online》已于 2009 关服，其设定依据当时官方资料。<b>伦理分级与法律状态均为分析工具，不构成法律或合规意见</b>；真实项目应走机构伦理审查并咨询执业律师。跨境业务须逐法域重判——同一行为在不同国家结论可能完全相反。</p></div>'+
   '<div class="card"><h3 style="margin-top:0">热门作品总结与作品库</h3><p class="note">2026-11-05 两批扩充：10 篇深度总结（攻壳机动队、刀剑神域、黑镜、万神殿、碳变、SOMA、神经漫游者/雪崩、西部世界、盗梦空间、头号玩家）＋ 190 部作品库标准总结（游戏 49 / 动画漫画 29 / 电影 58 / 剧集 19 / 小说 35），每篇含热度定位、核心想象难度表、代表场景、现实对照与两部重点作品对照。作品库条目多数暂无全表独立功能条目，难度按同一 L1–L5 标尺独立评估；条目关联与术语链接复用全表数据。</p></div>'+
-  '<div class="card"><h3 style="margin-top:0">开源与编辑</h3><p class="note">本 Wiki 开源，托管在 <a href="https://github.com/yongshoushou/bci-wiki" target="_blank" rel="noopener">GitHub · yongshoushou/bci-wiki</a>，在线地址 <a href="https://bci-imagination-wiki.app.workbuddy.host/" target="_blank" rel="noopener">bci-imagination-wiki.app.workbuddy.host</a>（国内直连）／ <a href="https://yongshoushou.github.io/bci-wiki/" target="_blank" rel="noopener">yongshoushou.github.io/bci-wiki</a>（GitHub Pages）。任何人可<b>提 Issue / 发 PR</b> 参与修订：仓库里对应文件点右上角铅笔即可在网页上直接改。代码 MIT，词条内容 CC BY-SA 4.0，详见仓库 README 与 CONTRIBUTING。</p></div>'+
+  '<div class="card"><h3 style="margin-top:0">开源与编辑</h3><p class="note">本 Wiki 开源，托管在 <a href="https://github.com/yongshoushou/bci-wiki" target="_blank" rel="noopener">GitHub · yongshoushou/bci-wiki</a>，在线地址 <a href="https://bci-imagination-wiki.app.workbuddy.host/?sharecode=ANJMFJDHC3" target="_blank" rel="noopener">bci-imagination-wiki.app.workbuddy.host</a>（国内直连，链接须带 sharecode）／ <a href="https://yongshoushou.github.io/bci-wiki/" target="_blank" rel="noopener">yongshoushou.github.io/bci-wiki</a>（GitHub Pages）。任何人可<b>提 Issue / 发 PR</b> 参与修订：仓库里对应文件点右上角铅笔即可在网页上直接改。代码 MIT，词条内容 CC BY-SA 4.0，详见仓库 README 与 CONTRIBUTING。</p></div>'+
   '<div class="card"><h3 style="margin-top:0">文件</h3><p class="note">本页数据由 <b>build_wiki.js</b> 从「直观版.html」自动提取生成，条目零分歧。<a href="'+fileHref('脑机接口功能想象_直观版.html')+'">表格筛选版</a> · <a href="'+fileHref('脑机接口功能想象对照表.md')+'">Markdown 完整版</a>。</p></div>'+
   "<p class=note>整理：Arthur+Codex · 2026-11-04 · 开源：github.com/yongshoushou/bci-wiki</p>";
 }
