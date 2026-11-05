@@ -74,22 +74,24 @@ md = norm(md);
 out = norm(out);
 
 // 幂等：若已存在 §10 技术条目层，先整段删除
+// 注意：§10 之后紧邻的章节会随版本变化（v1.1 是评估方法，v1.2 起是设备目录），
+// 这里不能写死章节号，否则第二次跑链就定位不到边界。
 const startTag = "## 10. 技术条目层";
-const endTag = "## 11. 评估方法与免责说明";
+const nextRe = /^## \d+\. (设备与产品目录|临床适应证图谱|评估方法与免责说明)/m;
 const si = md.indexOf(startTag);
 if (si !== -1) {
-  const ei = md.indexOf(endTag);
-  if (ei === -1) throw new Error("找到旧 §10 但找不到 §11，请手动检查");
-  md = md.slice(0, si) + md.slice(ei);
+  const r = md.slice(si).match(nextRe);
+  if (!r) throw new Error("找到旧 §10 但找不到其后章节，请手动检查");
+  md = md.slice(0, si) + md.slice(si + r.index);
 }
 
-// 原 §10 评估方法顺延为 §11
+// 首次运行时评估方法是 §10，顺延为 §11
 if (md.indexOf("## 10. 评估方法与免责说明") !== -1) {
   md = md.replace("## 10. 评估方法与免责说明", "## 11. 评估方法与免责说明");
-} else if (md.indexOf(endTag) === -1) {
-  throw new Error("未找到「评估方法与免责说明」章节，无法定位插入点");
 }
 
-md = md.replace(endTag, out + endTag);
+const anchor = md.match(nextRe);
+if (!anchor) throw new Error("未找到插入点（设备目录 / 评估方法）");
+md = md.slice(0, anchor.index) + out + md.slice(anchor.index);
 fs.writeFileSync(mdPath, md, "utf8");
 console.log(`已写入 §10：${T.length} 条技术条目（` + CATS.map(c => c.k + c.ids.length).join(" ") + "）");
