@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="Arthur+Codex">
 <meta name="created" content="2026-11-04">
-<meta name="version" content="1.3.0">
+<meta name="version" content="1.4.0">
 <meta name="build" content="2026-11-05">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f81f7'/%3E%3Ctext x='16' y='22.5' font-size='17' font-family='sans-serif' font-weight='700' fill='%23fff' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
 <title>脑机接口功能想象 · Wiki</title>
@@ -31,6 +31,9 @@ a:hover{text-decoration:underline}
 .sg-foot,.sg-none{padding:8px 10px;color:var(--dim);font-size:11px}
 nav{padding:2px 10px 20px;font-size:12.5px}
 nav .grp{margin:12px 0 4px;color:var(--dim);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;padding:0 8px}
+nav .grp.sec{margin:18px 0 6px;padding-top:12px;border-top:1px solid var(--line);color:var(--fg);font-weight:600;font-size:10.5px}
+nav .row.ent{font-weight:600;color:var(--fg)}
+nav .row.ent .n{font-weight:400}
 nav a.row{display:block;padding:5px 9px;border-radius:6px;color:#c9d1d9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 nav a.row:hover{background:#1f6feb22;text-decoration:none;color:#fff}
 nav a.row.on{background:#1f6feb33;color:#fff}
@@ -64,6 +67,15 @@ p{margin:8px 0}
 .tile:hover{border-color:var(--accent);text-decoration:none;background:#1c2128}
 .tile b{display:block;font-size:14px;margin-bottom:4px}
 .tile span{color:var(--muted);font-size:12px}
+/* v2.0 入口层：现实侧五层步骤条 */
+.layers{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:12px 0 6px}
+.layer{display:block;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:13px 13px 12px;color:var(--fg)}
+.layer:hover{border-color:var(--accent);text-decoration:none;background:#1c2128}
+.layer .ln{position:absolute;top:-9px;left:12px;width:20px;height:20px;border-radius:999px;background:var(--accent);color:#fff;font-size:11px;font-weight:600;line-height:20px;text-align:center}
+.layer b{display:block;font-size:13px;margin:6px 0 3px;line-height:1.4}
+.layer .lr{display:block;color:var(--accent);font-size:11px;margin-bottom:5px}
+.layer em{display:block;color:var(--muted);font-size:11.5px;font-style:normal;line-height:1.5}
+@media(max-width:1180px){.layers{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin:12px 0 6px}
 .tcard{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;color:var(--fg)}
 .tcard:hover{border-color:var(--accent);text-decoration:none;background:var(--panel2)}
@@ -352,84 +364,100 @@ function itemRow(id){const d=BY[id];if(!d)return "";return '<li><span class="id"
 function notFound(t){return "<h1>未找到</h1><p class=lead>"+esc(t)+"</p><p><a href=\"#/\">← 回首页</a></p>";}
 
 // ---------- 目录树 ----------
+// v2.0 入口层：四段式 —— 现实侧（主干）/ 判断框架 / 想象侧（文化再现）/ 工具
 function tree(){
   const byLv={};LVS.forEach(x=>byLv[x.k]=[]);
   IT.forEach(d=>byLv[lvKey(d)].push(d));
   let h="";
+  const ent=(href,label,n)=>'<a class="row ent" href="'+href+'">'+label+((n===undefined||n===null)?"":' <span class="n">'+n+"</span>")+"</a>";
+
   h+='<div class="grp">概览</div>';
-  [["首页","#/"],["结论与难度标尺","#/scale"],["技术条目","#/tech"],["设备与产品目录","#/dev"],["临床适应证图谱","#/ind"],["监管与准入路径","#/reg"],["可复现层","#/rep"],["现实案例对照组","#/cases"],["现有科技组合","#/compose"],["伦理道德分类标准","#/ethics"],["法律分类标准","#/law"],["现实基线","#/reality"],["关于本 Wiki","#/about"]].forEach(x=>h+='<a class="row" href="'+x[1]+'">'+x[0]+"</a>");
-  h+='<div class="grp">技术条目（'+DB.tech.list.length+"）</div>";
+  [["首页","#/"],["关于本 Wiki","#/about"]].forEach(x=>h+='<a class="row" href="'+x[1]+'">'+x[0]+"</a>");
+
+  /* ---- 现实侧：可核查的那一层，本 Wiki 的主干 ---- */
+  h+='<div class="grp sec">现实侧 · 主干</div>';
+  h+=ent("#/tech","技术条目",DB.tech.list.length);
   DB.tech.cats.forEach(c=>{
     const arr=DB.tech.list.filter(t=>t.cat===c.k);if(!arr.length)return;
     h+='<details data-g="tech:'+c.k+'"><summary>'+esc(c.name)+' <span class="n">'+arr.length+"</span></summary><template><div class=\"body\">";
     arr.forEach(t=>h+='<a class="row" href="#/tech/'+t.k+'">'+t.k+" · "+esc(t.name)+"</a>");
     h+="</div></template></details>";
   });
-  h+='<div class="grp">设备目录（'+DB.dev.list.length+"）</div>";
+  h+=ent("#/dev","设备与产品目录",DB.dev.list.length);
   DB.dev.tiers.forEach(t=>{
     const arr=DB.dev.list.filter(d=>d.tier===t.k);if(!arr.length)return;
     h+='<details data-g="dev:'+t.k+'"><summary>'+esc(t.name)+' <span class="n">'+arr.length+"</span></summary><template><div class=\"body\">";
     arr.forEach(d=>h+='<a class="row" href="#/dev/'+d.k+'">'+d.k+" · "+esc(d.name)+"</a>");
     h+="</div></template></details>";
   });
-  h+='<div class="grp">临床适应证（'+DB.ind.list.length+"）</div>";
+  h+=ent("#/ind","临床适应证图谱",DB.ind.list.length);
   DB.ind.list.forEach(x=>h+='<a class="row" href="#/ind/'+x.k+'">'+x.k+" "+esc(x.name)+' <span class="n">E'+x.ev+"</span></a>");
-  h+='<div class="grp">监管与准入（'+DB.reg.list.length+"）</div>";
+  h+=ent("#/reg","监管与准入路径",DB.reg.list.length);
   DB.reg.groups.forEach(g=>{
     const arr=DB.reg.list.filter(x=>x.grp===g.k);if(!arr.length)return;
     h+='<details data-g="regg:'+g.k+'"><summary>'+esc(g.name)+' <span class="n">'+arr.length+"</span></summary><template><div class=\"body\">";
     arr.forEach(x=>h+='<a class="row" href="#/reg/'+x.k+'">'+x.k+" · "+esc(x.name)+"</a>");
     h+="</div></template></details>";
   });
-  h+='<div class="grp">可复现（'+DB.rep.list.length+"）</div>";
+  h+=ent("#/rep","可复现层",DB.rep.list.length);
   DB.rep.groups.forEach(g=>{
     const arr=DB.rep.list.filter(o=>o.grp===g.k);if(!arr.length)return;
     h+='<details data-g="repg:'+g.k+'"><summary>'+esc(g.name)+' <span class="n">'+arr.length+"</span></summary><template><div class=\"body\">";
     arr.forEach(o=>h+='<a class="row" href="#/rep/'+o.k+'">'+o.k+" · "+esc(o.name)+"</a>");
     h+="</div></template></details>";
   });
-  h+='<div class="grp">现实案例（'+DB.cases.list.length+"）</div>";
+  h+=ent("#/cases","现实案例对照组",DB.cases.list.length);
   DB.cases.meta.forEach(x=>{
     const arr=DB.cases.list.filter(c=>c.cat===x.k);if(!arr.length)return;
     h+='<details data-g="cat:'+x.k+'"><summary>'+esc(x.name)+' <span class="n">'+arr.length+"</span></summary><template><div class=\"body\">";
     arr.forEach(c=>h+='<a class="row" href="#/case/'+c.k+'">'+c.k+" · "+esc(c.name)+"</a>");
     h+="</div></template></details>";
   });
-  h+='<div class="grp">科技组合（'+DB.compose.list.length+"）</div>";
+  h+=ent("#/compose","现有科技组合",DB.compose.list.length);
   DB.compose.tiers.forEach(x=>{
     const arr=DB.compose.list.filter(c=>c.tier===x.k);if(!arr.length)return;
     h+='<details data-g="tier:'+x.k+'"><summary>'+x.k+" "+esc(x.name)+' <span class="n">'+arr.length+"</span></summary><template><div class=\"body\">";
     arr.forEach(c=>h+='<a class="row" href="#/compose/'+c.k+'">'+c.k+" · "+esc(c.name)+"</a>");
     h+="</div></template></details>";
   });
-  h+='<div class="grp">伦理议题（'+DB.ethics.dims.length+"）</div>";
+  h+='<a class="row" href="#/reality">现实基线</a>';
+
+  /* ---- 判断框架：跨两侧的方法层 ---- */
+  h+='<div class="grp sec">判断框架</div>';
+  h+='<a class="row" href="#/scale">结论与难度标尺 L1–L5</a>';
+  h+=ent("#/ethics","伦理道德分类标准",DB.ethics.dims.length);
   DB.ethics.dims.forEach(x=>h+='<a class="row" href="#/ethics/'+x.k+'">'+x.k+" "+esc(x.name)+' <span class="n">'+x.ids.length+"</span></a>");
-  h+='<div class="grp">法律议题（'+DB.law.dims.length+"）</div>";
+  h+=ent("#/law","法律分类标准",DB.law.dims.length);
   DB.law.dims.forEach(x=>h+='<a class="row" href="#/law/'+x.k+'">'+x.k+" "+esc(x.name)+' <span class="n">'+x.ids.length+"</span></a>");
-  h+='<div class="grp">作品</div>';
-  DB.works.forEach(w=>h+='<a class="row" href="#/work/'+w.key+'">'+esc(w.name)+"</a>");
-  h+='<div class="grp">热门作品总结（'+DB.hot.length+"）</div>";
-  DB.hot.forEach(w=>h+='<a class="row" href="#/hot/'+w.key+'">'+esc(w.name)+"</a>");
-  h+='<div class="grp">作品库（'+DB.lib.length+"）</div>";
-  ["g","a","f","t","n"].forEach(c=>{
-    const arr=DB.lib.filter(w=>w.cat===c);if(!arr.length)return;
-    h+='<details data-g="lib:'+c+'"><summary>'+CATN[c]+' <span class="n">'+arr.length+"</span></summary><template><div class=\"body\">";
-    arr.forEach(w=>h+='<a class="row" href="#/hot/'+w.key+'">'+esc(w.name)+"</a>");
-    h+="</div></template></details>";
-  });
-  h+='<div class="grp">主题概念</div>';
-  DB.groups.forEach(g=>h+='<a class="row" href="#/group/'+g.key+'">'+esc(g.name)+"</a>");
-  h+='<div class="grp">术语表</div>';
-  h+='<a class="row" href="#/glossary">全部术语（'+DB.glossary.length+"）</a>";
-  h+='<div class="grp">功能条目（'+IT.length+"）</div>";
+
+  /* ---- 想象侧：文化再现，不是待办清单 ---- */
+  h+='<div class="grp sec">想象侧 · 文化再现（'+IT.length+' 条）</div>';
+  h+='<a class="row" href="#/table">全部功能条目（可筛选表）</a>';
   LVS.forEach(l=>{
     const arr=byLv[l.k];
     h+='<details data-g="lv:'+l.k+'"><summary>'+esc(l.name)+' <span class="n">'+arr.length+"</span></summary><template><div class=\"body\">";
     arr.forEach(d=>h+='<a class="row" href="#/item/'+d.id+'">'+d.id+" · "+esc(d.fn)+"</a>");
     h+="</div></template></details>";
   });
-  h+='<div class="grp">工具</div>';
-  [["完整表格（可筛选）","#/table"],["索引与反查","#/index"]].forEach(x=>h+='<a class="row" href="'+x[1]+'">'+x[0]+"</a>");
+  h+='<div class="grp">主题概念</div>';
+  DB.groups.forEach(g=>h+='<a class="row" href="#/group/'+g.key+'">'+esc(g.name)+"</a>");
+  h+='<div class="grp">作品</div>';
+  DB.works.forEach(w=>h+='<a class="row" href="#/work/'+w.key+'">'+esc(w.name)+"</a>");
+  h+='<div class="grp">热门作品总结（'+DB.hot.length+'）</div>';
+  DB.hot.forEach(w=>h+='<a class="row" href="#/hot/'+w.key+'">'+esc(w.name)+"</a>");
+  h+='<div class="grp">作品库（'+DB.lib.length+'）</div>';
+  ["g","a","f","t","n"].forEach(c=>{
+    const arr=DB.lib.filter(w=>w.cat===c);if(!arr.length)return;
+    h+='<details data-g="lib:'+c+'"><summary>'+CATN[c]+' <span class="n">'+arr.length+"</span></summary><template><div class=\"body\">";
+    arr.forEach(w=>h+='<a class="row" href="#/hot/'+w.key+'">'+esc(w.name)+"</a>");
+    h+="</div></template></details>";
+  });
+  h+='<a class="row" href="#/glossary">术语表 <span class="n">'+DB.glossary.length+"</span></a>";
+
+  /* ---- 工具 ---- */
+  h+='<div class="grp sec">工具</div>';
+  h+='<a class="row" href="#/index">索引与反查</a>';
+
   $("#tree").innerHTML=h;
   // toggle 不冒泡，逐个绑定（约 20 个 details，成本可忽略）
   document.querySelectorAll("#tree details").forEach(d=>{
@@ -473,7 +501,7 @@ function syncTree(seg){
 }
 
 // ---------- 版本 ----------
-const VER="v1.3.0", VERDATE="2026-11-05";
+const VER="v1.4.0", VERDATE="2026-11-05";
 function footerHtml(){
   return '<footer><b style="color:var(--muted)">'+VER+'</b> · 构建 '+VERDATE+
     " · "+IT.length+" 条想象 / "+DB.tech.list.length+" 条技术 / "+DB.dev.list.length+" 台设备 / "+DB.ind.list.length+" 个适应证 / "+DB.reg.list.length+" 条监管路径 / "+DB.rep.list.length+" 项可复现 / "+(DB.hot.length+DB.lib.length)+" 个作品页 / "+DB.cases.list.length+" 例现实对照 / "+DB.compose.list.length+
@@ -508,8 +536,13 @@ function viewLevel(key){
 function viewHome(){
   const counts={};LVS.forEach(l=>counts[l.k]=0);IT.forEach(d=>counts[lvKey(d)]++);
   const max=Math.max(...Object.values(counts),1);
-  let h="<h1>脑机接口功能想象 · Wiki</h1><p class=lead>前半部分是对虚构的盘点：游戏 / 影视 / 动画 / 小说里的脑机接口想象，重点为《赛博朋克 2077》体系与《黑客帝国》全系列。后半部分是现实那一侧：<a href=\"#/tech\">技术条目</a>、<a href=\"#/dev\">设备目录</a>、<a href=\"#/ind\">临床适应证</a>、<a href=\"#/reg\">监管与准入</a>、<a href=\"#/rep\">可复现层</a>、<a href=\"#/cases\">可核查案例</a>、<a href=\"#/compose\">现有科技组合</a>。共 "+IT.length+" 条功能条目、"+DB.tech.list.length+" 条技术条目、"+DB.dev.list.length+" 台设备、"+DB.ind.list.length+" 个适应证、"+DB.reg.list.length+" 条监管路径、"+DB.rep.list.length+" 项可复现资源、"+DB.cases.list.length+" 个现实对照案例、"+DB.compose.list.length+" 种现有科技组合、"+DB.works.length+" 个作品页、"+DB.hot.length+" 篇深度总结、"+DB.lib.length+" 部作品库条目、"+DB.glossary.length+" 条术语、"+DB.groups.length+" 个主题概念。</p>";
-  h+='<ol class="takeaways">';
+  let h="<h1>脑机接口功能想象 · Wiki</h1><p class=lead>这个 Wiki 的主干是<b>现实那一侧</b>——脑机接口今天已经做到什么、谁在卖、卖给谁、要过几道门：<a href=\"#/tech\">技术条目</a> → <a href=\"#/dev\">设备目录</a> → <a href=\"#/ind\">临床适应证</a> → <a href=\"#/reg\">监管与准入</a> → <a href=\"#/rep\">可复现层</a>，另有 <a href=\"#/cases\">可核查案例</a> 与 <a href=\"#/compose\">现有科技组合</a> 做交叉验证。</p>";
+  h+="<p class=lead><b>想象那一侧</b>作为「文化再现」保留：游戏 / 影视 / 动画 / 小说里的脑机接口想象（重点《赛博朋克 2077》与《黑客帝国》），共 "+IT.length+" 条。它记录的是人被反复幻想的东西和被反复恐惧的东西，<b>不是一份待办清单</b>——所以它排在后面，而不是被删掉。</p>";
+  h+="<p class=note>全站："+IT.length+" 条想象 · "+DB.tech.list.length+" 条技术 · "+DB.dev.list.length+" 台设备 · "+DB.ind.list.length+" 个适应证 · "+DB.reg.list.length+" 条监管路径 · "+DB.rep.list.length+" 项可复现资源 · "+DB.cases.list.length+" 个现实对照 · "+DB.compose.list.length+" 种科技组合 · "+DB.works.length+" 个作品页 · "+DB.hot.length+" 篇深度总结 · "+DB.lib.length+" 部作品库条目 · "+DB.glossary.length+" 条术语 · "+DB.groups.length+" 个主题概念。</p>";
+  h+='<h2>现实侧五层：从零件到能买到</h2><p class=note>顺序即依赖关系——先知道有哪些零件（技术），再看现在能买到什么（设备），然后看谁真的在用（适应证），最后看为什么大多数人买不到（监管），以及凭什么相信这些数字（可复现）。</p><div class=layers>';
+  [["技术条目","零件",DB.tech.list.length+" 条 · 带典型数值与失效模式","#/tech"],["设备与产品目录","能买到什么",DB.dev.list.length+" 台 · 认证状态与价格口径","#/dev"],["临床适应证图谱","谁在用",DB.ind.list.length+" 个真实患者群体 · 现有疗法天花板","#/ind"],["监管与准入路径","为什么买不到",DB.reg.list.length+" 条路径 · 法定时限 vs 实际周期","#/reg"],["可复现层","凭什么信",DB.rep.list.length+" 项 · 数据集与评估陷阱","#/rep"]].forEach((x,i)=>h+='<a class="layer" href="'+x[3]+'"><span class="ln">'+(i+1)+'</span><b>'+esc(x[0])+'</b><span class="lr">'+esc(x[1])+"</span><em>"+esc(x[2])+"</em></a>");
+  h+="</div>";
+  h+='<h2>读完 '+IT.length+' 条想象后的九条结论</h2><ol class="takeaways">';
   [ "虚构集中在两件事：<b>「随意写入」</b>与<b>「跳过意识问题」</b>。现实 BCI 只读为主、极低带宽、需长期校准；两者几乎都假设全双工、高带宽、即插即用、秒级生效。",
     "<b>《赛博朋克 2077》比多数作品严谨</b>：它自己承认 engram 不是本人——只是记忆与言语模式的空壳、无主体意识、会劣化。Soulkiller 这个名字本身就是反讽。",
     "<b>《黑客帝国》的核心不是「接口」，是「替代」</b>：用模拟流完整顶替全部感官输入 + 接管运动输出，数十年不间断；子弹时间、看穿代码、程序附身属 L5 叙事装置。",
@@ -548,8 +581,8 @@ function viewHome(){
     h+='<a class="tile" style="cursor:default"><b>'+CATN[c]+" · "+arr.length+" 部</b><span>"+arr.map(w=>'<a style="color:inherit" href="#/hot/'+w.key+'">'+esc(w.name)+"</a>").join(" · ")+"</span></a>";
   });
   h+="</div>";
-  h+="<h2>从这里开始</h2><div class=grid>";
-  [["技术条目（基础层）","#/tech",DB.tech.list.length+" 条：模态 / 范式 / 指标 / 算法 / 器件，每条带典型数值区间与失效模式"],["设备与产品目录","#/dev",DB.dev.list.length+" 台：科研级 / 非侵入 / 植入介入，含通道、采样、认证状态与价格口径"],["临床适应证图谱","#/ind",DB.ind.list.length+" 个真实患者群体：丧失了哪些功能、现有疗法的天花板、BCI 补哪一段"],["监管与准入路径","#/reg",DB.reg.list.length+" 条路径：NMPA / FDA / MDR 三条注册线，加定价、医保、伦理与数据合规"],["可复现层","#/rep",DB.rep.list.length+" 项：公开数据集、开源工具链、三档评估协议，与一张八条复现清单"],["现实案例对照组","#/cases","28 个可核查案例：做到了什么、量化指标、没做到什么、证据 E1–E4"],["现有科技组合","#/compose","20 种「不发明新东西」的拼法，分现货可拼 / 需审批 / 制度未开三档"],["伦理道德分类标准","#/ethics","N1–N10 议题 + E0–E4 风险等级 + 难度×伦理矩阵"],["法律分类标准","#/law","J1–J8 议题 + V0–V4 状态 + 难度×法律矩阵（不判断项单独标注）"],["术语表","#/glossary","22 个核心设定词，点开即见关联条目"],["完整表格","#/table","带搜索 / 难度 / 伦理 / 法律筛选的对照表"],["索引与反查","#/index","按主题 / 作品 / 难度 / 伦理 / 法律反查编号"]].forEach(x=>h+='<a class="tile" href="'+x[1]+'"><b>'+x[0]+"</b><span>"+x[2]+"</span></a>");
+  h+="<h2>其他入口：案例 · 组合 · 判断框架 · 工具</h2><div class=grid>";
+  [["现实案例对照组","#/cases",DB.cases.list.length+" 个可核查案例：做到了什么、量化指标、没做到什么、证据 E1–E4"],["现有科技组合","#/compose",DB.compose.list.length+" 种「不发明新东西」的拼法，分现货可拼 / 需审批 / 制度未开三档"],["伦理道德分类标准","#/ethics","N1–N10 议题 + E0–E4 风险等级 + 难度×伦理矩阵"],["法律分类标准","#/law","J1–J8 议题 + V0–V4 状态 + 难度×法律矩阵（不判断项单独标注）"],["结论与难度标尺","#/scale","L1–L5+Ln 六级难度定义，加全站结论的完整版"],["现实基线","#/reality","判断「某个功能有多远」所依据的现实水位线"],["术语表","#/glossary","22 个核心设定词，点开即见关联条目"],["完整表格","#/table","带搜索 / 难度 / 伦理 / 法律筛选的对照表"],["索引与反查","#/index","按主题 / 作品 / 难度 / 伦理 / 法律反查编号"]].forEach(x=>h+='<a class="tile" href="'+x[1]+'"><b>'+x[0]+"</b><span>"+x[2]+"</span></a>");
   h+="</div>";
   h+="<h2>主题概念（组内条目互为参见）</h2><p>";
   h+=DB.groups.map(g=>'<a href="#/group/'+g.key+'">'+esc(g.name)+"</a>（"+g.ids.length+"）").join(" · ");

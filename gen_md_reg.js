@@ -1,6 +1,6 @@
 // gen_md_reg.js —— 从已构建的 Wiki 产物读取 DB，生成 §13 监管与准入路径、§14 可复现层
 // 用法：node build_wiki.js && node gen_md_reg.js
-// 顺序：build → gen_md_tech → gen_md_dev → gen_md_reg（本脚本最后跑，负责把版本号落到 v1.3.0）
+// 顺序：build → gen_md_tech → gen_md_dev → gen_md_reg（本脚本最后跑，负责把版本号同步为站点 meta 版本）
 // 幂等：重复运行结果一致；行尾随原文件（避免半文件 LF / 半文件 CRLF）
 const fs = require("fs");
 const path = require("path");
@@ -130,7 +130,15 @@ head = head.replace(/\s*$/, "\n\n");
 tail = tail.replace(evalRe, "## 15. 评估方法与免责说明");
 
 // 3) 版本
-head = head.replace(/\*\*版本\*\*：v\d+\.\d+\.\d+/, "**版本**：v1.3.0");
+// 版本号单一来源：直接读站点产物的 <meta name="version">，不再硬编码
+const VER_SITE = (html.match(/<meta name="version" content="([^"]+)">/) || [])[1];
+head = head.replace(/\*\*版本\*\*：v\d+\.\d+\.\d+/, "**版本**：v" + (VER_SITE || "1.3.0"));
+
+// 3b) 站点读法说明（幂等：以该行是否存在为准）
+if (head.indexOf("**站点**：") === -1) {
+  head = head.replace(/(\*\*作者\*\*：[^\r\n]*)/, "$1" + EOL +
+    "**站点**：Wiki 版入口层按「现实侧五层 → 判断框架 → 想象侧 · 文化再现」排列；本文件保持原章节顺序，现实侧见 §10–§15。");
+}
 
 // 4) 交叉引用（幂等：以目标串是否存在为准）
 if (head.indexOf("18 条监管路径见 §13") === -1) {
