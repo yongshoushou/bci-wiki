@@ -5,7 +5,9 @@
 
 ## 在线阅读
 
-> 部署后在这里放链接，例如：`https://<你的用户名>.github.io/bci-wiki/`
+👉 **https://yongshoushou.github.io/bci-wiki/**
+
+仓库地址：https://github.com/yongshoushou/bci-wiki
 
 ## 规模
 
