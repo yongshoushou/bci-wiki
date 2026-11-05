@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="Arthur+Codex">
 <meta name="created" content="2026-11-04">
-<meta name="version" content="2.3.0">
+<meta name="version" content="2.3.1">
 <meta name="build" content="2026-11-05">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f81f7'/%3E%3Ctext x='16' y='22.5' font-size='17' font-family='sans-serif' font-weight='700' fill='%23fff' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
 <title>脑机接口功能想象 · Wiki</title>
@@ -198,7 +198,7 @@ footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:v
 .crow .body dd{margin:0;padding:9px 0;font-size:12.8px;color:#c9d1d9;border-bottom:1px solid #21262d}
 .crow .body dl>dt:last-of-type,.crow .body dl>dd:last-of-type{border-bottom:none}
 .crow .body .pin{margin:11px 0 0;padding:9px 12px;background:#1f6feb14;border-left:2px solid var(--accent);border-radius:0 6px 6px 0;font-size:12.5px;color:#c9d1d9}
-/* 伦理与法律：九个争论点（v2.3.0） */
+/* 伦理与法律：九个讨论题（v2.3.0） */
 .qlist{display:flex;flex-direction:column;gap:14px;margin:16px 0 10px}
 .qcard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:17px 20px 15px;position:relative}
 .qcard .qn{position:absolute;top:15px;right:18px;font-family:ui-monospace,Consolas,monospace;font-size:11.5px;color:var(--dim);letter-spacing:.08em}
@@ -479,7 +479,7 @@ function tree(){
   h+='<a class="row" href="#/scale">结论与难度标尺 L1–L5</a>';
   h+='<a class="row" href="#/mapst">六档落地状态（想象 → 现实）</a>';
   h+=ent("#/works","作品 × 落地状态",DB.works.length);
-  h+=ent("#/ethlaw","伦理与法律 · 九个争论",DB.debate.length);
+  h+=ent("#/ethlaw","伦理与法律 · 九个讨论",DB.debate.length);
   h+=ent("#/ethics","伦理道德分类标准",DB.ethics.dims.length);
   DB.ethics.dims.forEach(x=>h+='<a class="row" href="#/ethics/'+x.k+'">'+x.k+" "+esc(x.name)+' <span class="n">'+x.ids.length+"</span></a>");
   h+=ent("#/law","法律分类标准",DB.law.dims.length);
@@ -556,7 +556,7 @@ function syncTree(seg){
 }
 
 // ---------- 版本 ----------
-const VER="v2.3.0", VERDATE="2026-11-05";
+const VER="v2.3.1", VERDATE="2026-11-05";
 function footerHtml(){
   return '<footer><b style="color:var(--muted)">'+VER+'</b> · 构建 '+VERDATE+
     " · "+IT.length+" 条想象 / "+DB.tech.list.length+" 条技术 / "+DB.dev.list.length+" 台设备 / "+DB.ind.list.length+" 个适应证 / "+DB.reg.list.length+" 条监管路径 / "+DB.rep.list.length+" 项可复现 / "+(DB.hot.length+DB.lib.length)+" 个作品页 / "+DB.cases.list.length+" 例现实对照 / "+DB.compose.list.length+
@@ -630,7 +630,7 @@ function viewHome(){
   h+='<h2 class="h2btn"><span>难度分布</span><a class="hmore" href="#/scale">完整难度标尺 L1–L5 →</a></h2><div class=grid>';
   LVS.forEach(l=>h+='<a class="bar" href="#/lv/'+l.k+'"><div class="t"><span style="color:'+l.c+'">'+esc(l.name)+'</span><span>'+counts[l.k]+' 条<span class="go">›</span></span></div><div class=track><div class=fill style="width:'+counts[l.k]/max*100+'%;background:'+l.c+'"></div></div></a>');
   h+="</div>";
-  h+='<h2 class="h2btn"><span>伦理与法律：九个最值得吵的问题</span><a class="hmore" href="#/ethlaw">全部九个问题 →</a></h2>';
+  h+='<h2 class="h2btn"><span>伦理与法律：九个最值得讨论的问题</span><a class="hmore" href="#/ethlaw">全部九个问题 →</a></h2>';
   h+='<p class=note>这一层最招人读，也最容易被两个数字误读。它和难度<b>正交</b>：难度问「能不能做」，伦理问「该不该做、谁负责」，法律问「按今天的法算什么」。三根轴交叉之后，才会看见一个反直觉的结构——<b>伦理最无解的地方，法律往往最沉默；法律最清楚的地方，恰恰是最不酷的那几个。</b></p>';
   h+='<div class="card" style="border-color:#dc262655;background:linear-gradient(180deg,#dc262610,#161b2200)"><b style="font-size:15.5px">'+e4n+' 条「触及人的定义」里，有 '+e4v+' 条法律一句话都没说。</b>';
   h+='<p class=note style="margin:7px 0 10px;line-height:1.85">而 <b>'+(v3n+v2n)+'</b> 条有明确法律评价（V0–V2）里，违法只有 '+v2n+' 条，无规定有 '+v3n+' 条——<b>没人管的比违法的多一倍</b>。这不是法律落后，是法条只能评价行为，评价不了「这算不算一个人」。</p>';
@@ -659,7 +659,7 @@ function viewHome(){
   [["技术条目","零件",DB.tech.list.length+" 条 · 带典型数值与失效模式","#/tech"],["设备与产品目录","能买到什么",DB.dev.list.length+" 台 · 认证状态与价格口径","#/dev"],["临床适应证图谱","谁在用",DB.ind.list.length+" 个真实患者群体 · 现有疗法天花板","#/ind"],["监管与准入路径","为什么买不到",DB.reg.list.length+" 条路径 · 法定时限 vs 实际周期","#/reg"],["可复现层","凭什么信",DB.rep.list.length+" 项 · 数据集与评估陷阱","#/rep"]].forEach((x,i)=>h+='<a class="layer" href="'+x[3]+'"><span class="ln">'+(i+1)+'</span><b>'+esc(x[0])+'</b><span class="lr">'+esc(x[1])+"</span><em>"+esc(x[2])+"</em></a>");
   h+="</div>";
   h+="<h2>其他入口：案例 · 组合 · 判断框架 · 工具</h2><div class=grid>";
-  [["常见问题 FAQ","#/faq","九个最常被问的问题：能干什么 / 会读心吗 / 多少钱 / 什么时候轮到我"],["作品 × 落地状态","#/works","十部作品 × 六档状态的矩阵，含「哪部作品预言最准」排序"],["现实案例对照组","#/cases",DB.cases.list.length+" 个可核查案例：做到了什么、量化指标、没做到什么、证据 E1–E4"],["现有科技组合","#/compose",DB.compose.list.length+" 种「不发明新东西」的拼法，分现货可拼 / 需审批 / 制度未开三档"],["伦理与法律：九个最值得吵的问题","#/ethlaw","进来就能读的版本：每条一句判词 + 两侧立场 + 四国治理范式对比"],["伦理道德分类标准","#/ethics","N1–N10 议题 + E0–E4 风险等级 + 难度×伦理矩阵"],["法律分类标准","#/law","J1–J8 议题 + V0–V4 状态 + 难度×法律矩阵（不判断项单独标注）"],["结论与难度标尺","#/scale","L1–L5+Ln 六级难度定义，加全站结论的完整版"],["现实基线","#/reality","判断「某个功能有多远」所依据的现实水位线"],["术语表","#/glossary","22 个核心设定词，点开即见关联条目"],["完整表格","#/table","带搜索 / 难度 / 伦理 / 法律筛选的对照表"],["索引与反查","#/index","按主题 / 作品 / 难度 / 伦理 / 法律反查编号"]].forEach(x=>h+='<a class="tile" href="'+x[1]+'"><b>'+x[0]+"</b><span>"+x[2]+"</span></a>");
+  [["常见问题 FAQ","#/faq","九个最常被问的问题：能干什么 / 会读心吗 / 多少钱 / 什么时候轮到我"],["作品 × 落地状态","#/works","十部作品 × 六档状态的矩阵，含「哪部作品预言最准」排序"],["现实案例对照组","#/cases",DB.cases.list.length+" 个可核查案例：做到了什么、量化指标、没做到什么、证据 E1–E4"],["现有科技组合","#/compose",DB.compose.list.length+" 种「不发明新东西」的拼法，分现货可拼 / 需审批 / 制度未开三档"],["伦理与法律：九个最值得讨论的问题","#/ethlaw","进来就能读的版本：每条一句判词 + 两侧立场 + 四国治理范式对比"],["伦理道德分类标准","#/ethics","N1–N10 议题 + E0–E4 风险等级 + 难度×伦理矩阵"],["法律分类标准","#/law","J1–J8 议题 + V0–V4 状态 + 难度×法律矩阵（不判断项单独标注）"],["结论与难度标尺","#/scale","L1–L5+Ln 六级难度定义，加全站结论的完整版"],["现实基线","#/reality","判断「某个功能有多远」所依据的现实水位线"],["术语表","#/glossary","22 个核心设定词，点开即见关联条目"],["完整表格","#/table","带搜索 / 难度 / 伦理 / 法律筛选的对照表"],["索引与反查","#/index","按主题 / 作品 / 难度 / 伦理 / 法律反查编号"]].forEach(x=>h+='<a class="tile" href="'+x[1]+'"><b>'+x[0]+"</b><span>"+x[2]+"</span></a>");
   h+="</div>";
   h+="<h2>主题概念（组内条目互为参见）</h2><p>";
   h+=DB.groups.map(g=>'<a href="#/group/'+g.key+'">'+esc(g.name)+"</a>（"+g.ids.length+"）").join(" · ");
@@ -1594,7 +1594,7 @@ function viewFaq(){
   h+='<p class=note>还有疑问：查数据去 <a href="#/tech">技术条目</a> 与 <a href="#/dev">设备目录</a>；查「某部作品里的设定是真是假」去 <a href="#/works">作品 × 落地状态</a>；查「为什么很难」去 <a href="#/scale">难度标尺</a>。</p>';
   return h;
 }
-// ---------- 伦理与法律：九个最值得吵的问题（v2.3：进来就能读，不用先学分类法） ----------
+// ---------- 伦理与法律：九个最值得讨论的问题（v2.3：进来就能读，不用先学分类法） ----------
 function debateVars(){
   const v={},cnt=f=>IT.filter(f).length;
   v.N=IT.length;
@@ -1615,8 +1615,8 @@ function debateVars(){
 function viewEthLaw(){
   const V=debateVars();
   const f=t=>t.replace(/\{([a-zA-Z0-9]+)\}/g,(m,k)=>V[k]!==undefined?V[k]:m);
-  let h="<h1>伦理与法律：九个最值得吵的问题</h1>";
-  h+='<p class=lead>这一页不是分类标准，是<b>争论</b>。每条给一句判词、两侧各自的理由、和可以点进去核对的条目。想看定义与逐条判词全文，去 <a href="#/ethics">伦理标准 N1–N10</a> 与 <a href="#/law">法律标准 J1–J8</a>；想按编号反查，去 <a href="#/table">完整表格</a>。</p>';
+  let h="<h1>伦理与法律：九个最值得讨论的问题</h1>";
+  h+='<p class=lead>这一页不是分类标准，是<b>讨论</b>。每条给一句判词、两侧各自的理由、和可以点进去核对的条目。想看定义与逐条判词全文，去 <a href="#/ethics">伦理标准 N1–N10</a> 与 <a href="#/law">法律标准 J1–J8</a>；想按编号反查，去 <a href="#/table">完整表格</a>。</p>';
   h+='<p class=note>下面所有数字都是从本表 '+IT.length+' 条数据现算的，不是估计——改一条标注，这里跟着变。九条判词是编辑判断，不是法律意见。</p>';
 
   // 四个开场数字
@@ -1658,7 +1658,7 @@ function viewEthLaw(){
 
   h+="<h2>这一页的口径</h2><div class=grid>";
   [["数字实时算","卡片上的每个数字都由 <code>DB.items</code> 现场统计，不写死。改一条伦理或法律标注，这一页立刻变——这也是它能当仪表盘用的原因。"],
-   ["判词是判断，不是法律意见","九条判词与「两侧」的写法是编辑判断，用来暴露争点，不构成对任何具体行为的合法性结论。真实项目请咨询执业律师。"],
+   ["判词是判断，不是法律意见","九条判词与「两侧」的写法是编辑判断，用来呈现分歧，不构成对任何具体行为的合法性结论。真实项目请咨询执业律师。"],
    ["法条以 2026-11 现行有效版本为准","不预测修法，也不假设任何待议法案通过。宁可过时，也不猜。各国差异见 Q8。"],
    ["「不判断」不等于「允许」","V3 是立法缺口，V4 是法律射程之外。两者都不能被引用为「合法」的依据。"]]
     .forEach(x=>h+='<div class="card"><b>'+x[0]+'</b><p class=note style="margin:6px 0 0">'+x[1]+"</p></div>");
@@ -2237,7 +2237,7 @@ const SSTATIC=[
   ["现有科技组合","#/compose","标准",88],
   ["六档落地状态（想象 → 现实）","#/mapst","标准",76],
   ["作品 × 落地状态（哪部作品预言最准）","#/works","标准",74],
-  ["伦理与法律：九个最值得吵的问题（神经权利 · 神经数据 · 脑机立法）","#/ethlaw","标准",94],
+  ["伦理与法律：九个最值得讨论的问题（神经权利 · 神经数据 · 脑机立法）","#/ethlaw","标准",94],
   ["常见问题 FAQ（能干什么 / 会读心吗 / 多少钱）","#/faq","标准",70],
   ["法律分类标准（现行法判断）","#/law","标准",75],
   ["伦理道德分类标准","#/ethics","标准",75],

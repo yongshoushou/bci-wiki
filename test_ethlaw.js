@@ -1,4 +1,4 @@
-// v2.3 新增页 #/ethlaw 的回归：伦理与法律 · 九个争论点。
+// v2.3 新增页 #/ethlaw 的回归：伦理与法律 · 九个讨论题。
 // 重点不是「页面能打开」，而是「页面上的每个数字都说得出来源」：
 //   A. 数据自洽——文案里写死的「4 条 / 2 条」必须等于数据实际计算值；
 //   B. 占位符全部替换——页面上不允许残留 {e4} 这类模板片段；
@@ -19,7 +19,7 @@ const ok = (name, cond, extra) => { const line = (cond ? "OK   " : "FAIL ") + na
 
 /* ---------- 1) 数据层自洽 ---------- */
 const D = q("DB.debate"), P = q("DB.paradigm");
-ok("九个争论点", D.length === 9, "实际 " + D.length);
+ok("九个讨论题", D.length === 9, "实际 " + D.length);
 ok("编号唯一且为 Q1–Q9", D.map(x => x.k).join(",") === "Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9");
 ok("九条都有判词与两侧立场", D.every(x => x.a && x.e && x.l && x.n && x.ids.length));
 
@@ -42,7 +42,7 @@ ok("范式三栏都不为空", P.every(x => x.how && x.good && x.bad && x.y && x
 
 /* ---------- 2) 页面渲染 ---------- */
 const v = go("#/ethlaw");
-ok("#/ethlaw 渲染 H1", v.indexOf("<h1>伦理与法律：九个最值得吵的问题</h1>") >= 0);
+ok("#/ethlaw 渲染 H1", v.indexOf("<h1>伦理与法律：九个最值得讨论的问题</h1>") >= 0);
 ok("九张问题卡", (v.match(/class=qcard/g) || []).length === 9, "实际 " + (v.match(/class=qcard/g) || []).length);
 ok("每张卡都有两侧立场", (v.match(/class=qcols/g) || []).length === 9);
 ok("每张卡都有伦理/法律分栏标题", (v.match(/伦理这一侧/g) || []).length === 9 && (v.match(/法律这一侧/g) || []).length === 9);
@@ -67,8 +67,8 @@ ok("四种范式都给了强弱两侧", (v.match(/强在哪/g) || []).length ===
 ok("收尾点明「只立法到数据层」", v.indexOf("数据") >= 0 && v.indexOf("写入") >= 0);
 
 /* ---------- 4) 路由、别名、侧栏、搜索、首页入口 ---------- */
-[["#/ethlaw", "九个最值得吵的问题"], ["#/debate", "九个最值得吵的问题"], ["#/rights", "九个最值得吵的问题"],
- ["#/ethicallaw", "九个最值得吵的问题"], ["#/lawethics", "九个最值得吵的问题"]].forEach(([u, mark]) => {
+[["#/ethlaw", "九个最值得讨论的问题"], ["#/debate", "九个最值得讨论的问题"], ["#/rights", "九个最值得讨论的问题"],
+ ["#/ethicallaw", "九个最值得讨论的问题"], ["#/lawethics", "九个最值得讨论的问题"]].forEach(([u, mark]) => {
   ok("路由 " + u, go(u).indexOf(mark) >= 0);
 });
 q("tree()");
@@ -82,7 +82,7 @@ ok("搜索「神经权利」命中该页", sug2.indexOf("#/ethlaw") >= 0);
 ctx.location.hash = "#/";
 vm.runInContext("route()", ctx);
 const home = els["#view"].innerHTML;
-ok("首页有伦理法律入口卡", home.indexOf('href="#/ethlaw"') >= 0 && home.indexOf("九个最值得吵的问题") >= 0);
+ok("首页有伦理法律入口卡", home.indexOf('href="#/ethlaw"') >= 0 && home.indexOf("九个最值得讨论的问题") >= 0);
 ok("首页入口卡的数字与数据同值", home.indexOf(e4 + ' 条「触及人的定义」') >= 0 && home.indexOf("有 " + e4v34 + " 条法律一句话都没说") >= 0);
 ok("首页保留两组分布条", home.indexOf("伦理风险分布") >= 0 && home.indexOf("法律状态分布") >= 0);
 
