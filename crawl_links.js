@@ -9,7 +9,7 @@ vm.createContext(ctx); vm.runInContext(src, ctx);
 const go = x => { ctx.location.hash = x; vm.runInContext('route()', ctx); return els['#view'].innerHTML; };
 const q = c => vm.runInContext(c, ctx);
 
-const seeds = ['#/', '#/table', '#/index', '#/glossary', '#/about', '#/scale', '#/reality', '#/ethics', '#/law', '#/cases', '#/compose'];
+const seeds = ['#/', '#/table', '#/index', '#/glossary', '#/about', '#/scale', '#/reality', '#/ethics', '#/law', '#/cases', '#/compose', '#/tech'];
 q('DB.items').forEach(d => seeds.push('#/item/' + d.id));
 q('DB.works').forEach(w => seeds.push('#/work/' + w.key));
 q('DB.glossary').forEach(g => seeds.push('#/concept/' + g.key));
@@ -19,6 +19,7 @@ q('DB.ethics.dims').forEach(l => seeds.push('#/ethics/' + l.k));
 q('DB.law.dims').forEach(l => seeds.push('#/law/' + l.k));
 q('DB.cases.list').forEach(c => seeds.push('#/case/' + c.k));
 q('DB.compose.list').forEach(k => seeds.push('#/compose/' + k.k));
+q('DB.tech.list').forEach(t => seeds.push('#/tech/' + t.k));
 
 const seen = new Set(), queue = seeds.slice(), broken = [], visited = [];
 while (queue.length) {
