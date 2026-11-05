@@ -49,6 +49,10 @@ main{flex:1;min-width:0}
 .view{padding:28px 34px 90px;max-width:1120px}
 h1{font-size:27px;margin:0 0 6px;letter-spacing:.4px}
 h2{font-size:18px;margin:30px 0 12px;padding-left:10px;border-left:3px solid var(--accent)}
+h2.h2btn{display:flex;align-items:baseline;gap:12px}
+h2.h2btn .hmore{margin-left:auto;font-size:11.5px;font-weight:400;color:var(--accent);border:1px solid var(--line);border-radius:999px;padding:3px 11px;white-space:nowrap;text-decoration:none;transition:border-color .15s,background .15s}
+h2.h2btn .hmore:hover{border-color:var(--accent);background:#1c2128;text-decoration:none}
+@media(max-width:640px){h2.h2btn{flex-wrap:wrap}h2.h2btn .hmore{margin-left:0}}
 h3{font-size:14px;margin:20px 0 8px;color:var(--fg)}
 p{margin:8px 0}
 .lead{color:var(--muted);font-size:13.5px;margin:0 0 18px}
@@ -168,8 +172,6 @@ footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:v
     <div class="crumb" id="crumb"></div>
     <div class="topnav">
       <a href="#/table">表格视图</a>
-      <a href="脑机接口功能想象_直观版.html">旧版筛选</a>
-      <a href="脑机接口功能想象对照表.md">Markdown</a>
     </div>
   </div>
   <div class="view" id="view"></div>
@@ -344,17 +346,17 @@ function viewHome(){
     "<b>最像作品的几条，其实不需要碰脑。</b>"+DB.compose.list.length+" 种现有科技组合里，"+DB.compose.tiers[0].n+" 种今天就能拼出原型（神经自适应难度、注意力定价、外挂记忆）；而"+IT.filter(d=>!d.kits||!d.kits.length).length+" 条想象连一条可拼路径都没有——那才是真正的难处。见 <a href=\"#/compose\">现有科技组合</a>。"
   ].forEach(t=>h+="<li>"+t+"</li>");
   h+="</ol>";
-  h+="<h2>难度分布</h2><div class=grid>";
+  h+='<h2 class="h2btn"><span>难度分布</span><a class="hmore" href="#/scale">完整难度标尺 L1–L5 →</a></h2><div class=grid>';
   LVS.forEach(l=>h+='<div class="bar"><div class="t"><span style="color:'+l.c+'">'+esc(l.name)+"</span><span>"+counts[l.k]+" 条</span></div><div class=track><div class=fill style=\"width:"+counts[l.k]/max*100+"%;background:"+l.c+"\"></div></div></div>");
   h+="</div>";
-  h+="<h2>伦理风险分布</h2>";
-  h+='<p class=note>与难度<b>正交</b>的第二个维度：难度问「能不能做」，伦理问「该不该做、谁负责」。E 衡量的是离形成规范有多远，不是伤害大小。<a href="#/ethics">分类标准全文 →</a></p>';
+  h+='<h2 class="h2btn"><span>伦理风险分布</span><a class="hmore" href="#/ethics">伦理分类标准 N1–N10 · E0–E4 →</a></h2>';
+  h+='<p class=note>与难度<b>正交</b>的第二个维度：难度问「能不能做」，伦理问「该不该做、谁负责」。E 衡量的是离形成规范有多远，不是伤害大小。</p>';
   const emax=Math.max.apply(null,DB.ethics.levels.map(x=>x.ids.length).concat([1]));
   h+="<div class=grid>";
   DB.ethics.levels.forEach(x=>h+='<div class="bar"><div class="t"><span style="color:'+x.c+'">'+x.k+" "+esc(x.name)+"</span><span>"+x.ids.length+' 条</span></div><div class=track><div class=fill style="width:'+(x.ids.length/emax*100)+"%;background:"+x.c+'"></div></div></div>');
   h+="</div>";
-  h+="<h2>法律状态分布</h2>";
-  h+='<p class=note>第三个维度：<b>只按现行法判断</b>，不预测立法。V3／V4 明确「未作判断」——不违法不等于允许。<a href="#/law">分类标准全文 →</a></p>';
+  h+='<h2 class="h2btn"><span>法律状态分布</span><a class="hmore" href="#/law">法律分类标准 J1–J8 · V0–V4 →</a></h2>';
+  h+='<p class=note>第三个维度：<b>只按现行法判断</b>，不预测立法。V3／V4 明确「未作判断」——不违法不等于允许。</p>';
   const lmax=Math.max.apply(null,DB.law.levels.map(x=>x.ids.length).concat([1]));
   h+="<div class=grid>";
   DB.law.levels.forEach(x=>h+='<div class="bar"><div class="t"><span style="color:'+x.c+'">'+x.k+" "+esc(x.name)+(x.judged?"":'　<span style="color:#d29922;font-size:10.5px">不判断</span>')+"</span><span>"+x.ids.length+' 条</span></div><div class=track><div class=fill style="width:'+(x.ids.length/lmax*100)+"%;background:"+x.c+'"></div></div></div>');
