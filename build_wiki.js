@@ -4399,6 +4399,139 @@ const LINK_DB = {
 };
 
 
+// ---------- 向外连：脑机接出去的是什么（v2.5.0 追加） ----------
+// 上一版（v2.4）回答「谁连谁」；这一版回答「连出去之后接的是什么系统」。
+// 用户点名两个重点：与 AI 的结合、向人眼投射类似游戏 UI 的技术；两者都要求现实与想象并列。
+//
+// 证据性质（ev）必须明写，因为它和站内 CASE 的 E1–E4 不是同一套：
+// 这里的现实锚点大量来自厂商公告 / 会议演示，不能当成同行评议结论读。
+const OUT_EV = [
+  { k: "监管认定", def: "FDA 突破性设备认定只加速审评沟通与优先审查，不等于上市许可，也不证明安全或有效。" },
+  { k: "同行评议", def: "发表于 NEJM / Nature / JAMA 等期刊，有可核查的方法与样本量；站内 R20 属此类。" },
+  { k: "厂商公告", def: "公司博客、新闻稿或平台协议公告，未经独立复核；数字以厂商口径为准。" },
+  { k: "会议演示", def: "GTC 等现场演示，通常没有公开数据与对照组，只能证明「做过」，不能证明「好用」。" },
+  { k: "媒体综述", def: "行业媒体或二手汇总，用于描述产品形态与规格，不作为疗效或性能结论。" }
+];
+
+// 六类外部对象：总览用。real / imagine 两栏并列，不构成互斥分类。
+const OUT_TOPICS = [
+  { k: "O1", name: "AI 与模型", focus: true, status: "已在链路里",
+    real: "解码器本身就是神经网络；自监督预训练、边缘推理、生成式补全与认知基础模型都已有公开案例。",
+    imagine: "作品几乎不写「解码器」，只把 AI 写成人格、反派、神明或墙后的东西。",
+    works: "《赛博朋克 2077》黑墙与 Soulkiller、《攻壳机动队》傀儡师、《心理测量者》西比拉",
+    ids: "C07 C15 C20 X04 X10 X13 X17 X03 M19" },
+  { k: "O2", name: "显示与视觉界面", focus: true, status: "一半已上市",
+    real: "叠在视野上的 HUD 靠光学就能做（波导 AR、激光视网膜投影）；写进视觉通路只到光点级。",
+    imagine: "义眼 HUD、代码瀑布、全视野叠层，默认「看见 UI」与「脑里收到 UI」是同一件事。",
+    works: "《赛博朋克 2077》Kiroshi 义眼、《黑客帝国》操作员视角、《电脑线圈》、X25 OASIS",
+    ids: "M05 C02 X01 X16 X25 C03 X24" },
+  { k: "O3", name: "义体与机器人", focus: false, status: "单点可用",
+    real: "脑控光标、机械臂、电动轮椅、辅助机械臂（CONVOY）都有公开演示；一套通用义体总线不存在。",
+    imagine: "插上即用、跨厂商通用、即插即拔的义体中枢与替身。",
+    works: "《赛博朋克 2077》神经接口、《阿凡达》替身、《攻壳机动队》义体化",
+    ids: "C01 C02 C03 X23 M01" },
+  { k: "O4", name: "云、数据与账户", focus: false, status: "数据上云，脑未上云",
+    real: "神经数据可被采集、存储、用于训练；K19 云端算力组合属 C 档（技术成立、制度未开）。",
+    imagine: "意识直接接入网络空间、随时切换身体与账户。",
+    works: "《雪崩》Metaverse、《头号玩家》OASIS、《碳变》皮质栈",
+    ids: "X08 X25 X09 C14 X11" },
+  { k: "O5", name: "智能环境与物联网", focus: false, status: "已有演示",
+    real: "ALS 患者用意念控制灯光、音乐、风扇、扫地机器人与语音助手（经头显或语音助手接入）。",
+    imagine: "整座城市是可被意念调用的界面，环境本身成为外设。",
+    works: "《赛博朋克 2077》快速破解、《心理测量者》西比拉",
+    ids: "C06 C07 X17 M19" },
+  { k: "O6", name: "其他人的脑", focus: false, status: "比特级",
+    real: "BrainNet 2019 三人脑脑接口，每轮约 1 bit；详见 LK4 / LK5。",
+    imagine: "记忆、情绪、人格共享与群体意识。",
+    works: "《环太平洋》Drift、《绯红结系》SAS、《仿生人会梦见电子羊吗》共情箱",
+    ids: "M19 X03 X17 X20 M09" }
+];
+
+// 重点一：AI 在脑机链路里的四个位置。real 与 imagine 并列，ev 标证据性质。
+const AI_SLOTS = [
+  { k: "A1", name: "解码器里的 AI", where: "神经信号 → 意图", ev: "厂商公告 + 同行评议", date: "2025–2026",
+    real: "现实 BCI 离开机器学习几乎不能工作。Neuralink 2026-10-01 官方博客称用 5 万小时无标注脑数据做自监督预训练，让解码器数周无需重新校准、并报出 11.32 bit/s 记录（厂商口径）；Synchron 2025-01 把信号处理管线迁到 NVIDIA Holoscan 边缘 AI 平台以做本地低延迟推理。同行评议侧：UCSF 语音神经假体 50 词表 30 分钟训练达 99.6%（R10）、Stanford 内言语解码 125,000 词表 74%（R12）、脑虎「三全」系统全链路 <50 ms（R06）。",
+    imagine: "作品默认接口插上就能用、零校准、跨厂商通用，从不解释「解码器要训练几周」。C01 通用神经插槽、C02 义体控制都跳过了这一步。",
+    ids: "C01 C02 C03 X23",
+    gap: "现实里最大的日常成本是训练与漂移重校准，作品里最大的爽点是即插即用——被省略的恰是工程主体。",
+    note: "AI 不是加分项，是这条链路能成立的前提。把「解码器」写进作品会很难看，但它才是真正的主角。" },
+
+  { k: "A2", name: "生成式补全：把 1 bit 扩成一句话", where: "意图 → 完整表达", ev: "厂商公告", date: "2024-07",
+    real: "Synchron 2024-07 公布把 OpenAI 生成模型接进 Stentrode 的聊天界面：模型按上下文生成几条候选回复，患者用一次意念点击选中一句，把逐字拼写的负担压成一个选择；公司同时声明脑数据不与 OpenAI 共享。这是目前对 LK1 低带宽最有效的工程解法——不提带宽，改提「每次点击的信息量」。",
+    imagine: "作品里的 AI 会替人说话、替人活、甚至替人成为本人：X13 上传智能 UI 默认「UI 就是本人」、C15 以 AI 形态存续、X10 Cookie 被当工具役使、C20 把人格做成可编程集群。",
+    ids: "X13 C15 X10 C20 C09 X04",
+    gap: "现实补全的是句子，作品替换的是主体。前者是输入法，后者是身份问题——两者都叫「AI 在替我说话」，但差的不是性能，是本体。",
+    note: "也正因如此，它把 N2 认知自由从哲学题变成了产品题：这句话有多少是我想的？见 X20 与 #/ethlaw 第六问。" },
+
+  { k: "A3", name: "认知基础模型与代理", where: "意图 → 动作 / 环境", ev: "会议演示", date: "2025-03",
+    real: "Synchron 2025-03 在 NVIDIA GTC 发布 Chiral，公司称其为「认知 AI 脑基础模型」，用去标识化的长期神经记录做自监督训练；同时用 NVIDIA Cosmos / Omniverse 生成仿真家居环境来训练运动意图解码器。现场演示中，一名 ALS 患者经 Vision Pro 用意念控制灯光、音乐、风扇、扫地机器人与自动喂食器。以上均为厂商与会议口径，无公开对照数据。",
+    imagine: "墙后的 AI 会吞噬人脑（C07）、群体意识自发涌现（X03）、系统替全社会判定谁是罪犯（X17）、机器被「感化」（M19）。",
+    ids: "C07 X03 X17 M19 X10",
+    gap: "现实是统计模型在猜上下文，作品是主体在行使意志。前者出错叫误判，后者出错叫「它有自己的想法」——这个措辞差异就是全部差距。",
+    note: "最锋利的对照：现实把脑数据喂给模型，作品把人喂给 AI。前者是训练，后者是吞并。" },
+
+  { k: "A4", name: "接口协议与生态", where: "脑 ↔ 操作系统 / 设备", ev: "厂商公告", date: "2024–2025",
+    real: "Apple 2025-05-13 公布 BCI HID 协议，把神经输入正式列为原生输入模态，Synchron 成为首个集成方；协议是**双向**的——iPad / Vision Pro 把屏幕状态与 UI 元素信息实时回传给解码器，用上下文提高判读准确率。更早：2024-07 ALS 患者用 Stentrode 在 Vision Pro 上免手玩纸牌、看片、发消息；2024 年还有意念控 Amazon Alexa 的演示。",
+    imagine: "C01 的通用神经插槽、C06 的快速破解、X01 电子脑——都是「任何设备直接接上」的硬件想象。",
+    ids: "C01 C06 X01 C07 M05",
+    gap: "现实落地的是**协议适配**（操作系统承认一种新输入），作品落地的是**硬件通用**（一个插槽走遍天下）。前者慢却真，后者快却假。",
+    note: "这一格把两个重点接上了：脑机真正参与 UI 的地方不是「显示」，而是「知道屏幕上有什么」。" }
+];
+
+// 重点二：向人眼投射游戏 UI 的两条路线。
+const HUD_ROUTES = [
+  { k: "H1", name: "光学叠加：不碰脑", ev: "媒体综述 + 厂商公告", date: "2024–2026",
+    real: "三档已经存在：① 视野角落的小窗 HUD（通知 / 导航字幕，消费级智能眼镜）；② 波导 AR（Meta Orion 原型用 MicroLED + 碳化硅全息波导，FOV 约 70°、约 98 g、续航约 2 小时、成本万美元级且未商用；XREAL One Pro 约 57°）；③ 激光束扫描直投视网膜（QD Laser RETISSA / VISIRIUM 把图像直接投到视网膜，绕开晶状体与角膜，主要面向低视力人群；Intel Vaunt 项目已停产）。激光安全限制亮度约 400–600 nits，户外可用性受限。",
+    imagine: "《赛博朋克 2077》Kiroshi 义眼把血量、瞄准框、目标标签直接叠在视野上；M05 操作员读代码瀑布；《电脑线圈》把整座城市盖上一层可交互的信息层；X25 OASIS 是头显里的完整世界。",
+    ids: "M05 C02 C03 X24 X25 X01",
+    gap: "差的不是「有没有 UI」，是 UI 从哪来：现实的光学会被阳光、视场角、续航和重量限制；作品的义眼 UI 没有这些约束，而且默认它知道你在看什么。",
+    note: "**游戏里那层 HUD 今天就能做，靠的是光学，不是脑机。** 它属于 LK5 里「商业形态已上市」的那部分，不碰脑就绕开了绝大多数神经规制。" },
+  { k: "H2", name: "视觉通路写入：碰脑", ev: "同行评议 + 监管认定", date: "2024–2025",
+    real: "两条子路线：① 视网膜下植入——PRIMA 光伏视网膜下植入 38 例干性 AMD 地图样萎缩患者，多项视力指标改善（NEJM 2025，站内 R20）；Argus II 已退市。② 视觉皮层刺激——公开结果仍只是光点级；Neuralink Blindsight 用外部摄像头拍图像、无线传到视觉皮层植入体刺激神经元，2024-09-17 获 FDA 突破性设备认定（官方博客），但截至 2025-10 无公开确认的人体植入结果，长期测试仅在非人灵长类；行业资料预期初期分辨率很低。注意：**突破性设备认定不是上市许可，也不证明安全或有效**。",
+    imagine: "M05 操作员把代码瀑布当输入读、C02 超常感知、X16 FullDive 全潜行、X25 OASIS 全感官替代、X01 电子脑直接改写视觉。",
+    ids: "M05 C02 X16 X25 X01",
+    gap: "现实往视觉通路里写，只写得出光点；作品往里写，写得出一整套带语义的界面。卡点不是分辨率，是「一段视觉内容该写成什么神经格式」没有理论——与 LK2 的写入困境同一堵墙。",
+    note: "M05 的判词是全站最精准的一句：**「本质是给观众看的界面，不是给人脑的输入格式」**。作品把光学叠加和神经写入拍成同一个镜头，现实里前者是消费电子、后者是神经外科。" }
+];
+
+// 现实 × 想象对照总表
+const OUT_MATRIX = [
+  { obj: "解码模型", real: "Neuralink 自监督 5 万小时 / 11.32 bit/s（厂商博客）", imagine: "插上即用、零校准：C01 通用插槽", gap: "现实要训练数周且会漂移", status: "已实现，但形态不同", ev: "厂商公告" },
+  { obj: "生成式回复", real: "Synchron + OpenAI：1 次意念点击选一句候选回复（2024）", imagine: "X13 上传智能 UI / C15 以 AI 形态存续", gap: "补全句子 vs 替换主体", status: "已实现（窄）", ev: "厂商公告" },
+  { obj: "认知基础模型", real: "Synchron Chiral + NVIDIA Cosmos 仿真（GTC 2025）", imagine: "C07 墙后 AI / X03 群体意识 / X17 西比拉", gap: "统计模型 vs 有意志的主体", status: "会议演示", ev: "会议演示" },
+  { obj: "原生输入协议", real: "Apple BCI HID 双向回传 UI 状态（2025-05）", imagine: "C01 通用神经插槽 / C06 快速破解", gap: "协议适配 vs 硬件通用", status: "已落地", ev: "厂商公告" },
+  { obj: "视野角落 HUD", real: "消费级智能眼镜的通知 / 导航小窗", imagine: "CP2077 义眼 HUD 的目标标签与血量条", gap: "信息量与上下文理解差几个数量级", status: "已上市", ev: "媒体综述" },
+  { obj: "全视野 AR", real: "Meta Orion 原型 70° / 98 g / 约 2 h / 未商用", imagine: "M05 代码瀑布、《电脑线圈》城市信息层", gap: "续航、成本、户外亮度", status: "原型", ev: "媒体综述" },
+  { obj: "视网膜投影", real: "QD Laser RETISSA / VISIRIUM 激光直投视网膜", imagine: "义眼内直接成像", gap: "面向低视力，亮度受激光安全限制", status: "小众可用", ev: "厂商公告" },
+  { obj: "视觉假体", real: "PRIMA 38 例（NEJM 2025）/ Blindsight 仅获认定", imagine: "X16 FullDive / X25 OASIS 全感官替代", gap: "光点级 vs 全带宽", status: "临床 / 在研", ev: "同行评议 + 监管认定" }
+];
+
+// 校验
+{
+  const evKeys = OUT_EV.map(x => x.k);
+  const all = [].concat(OUT_TOPICS, AI_SLOTS, HUD_ROUTES);
+  all.forEach(x => {
+    ["k", "name", "real", "imagine", "ids"].forEach(f => { if (!x[f]) throw new Error("OUT " + x.k + " 缺字段：" + f); });
+    x.ids.split(" ").filter(Boolean).forEach(id => { if (!IDSET.has(id)) throw new Error("OUT " + x.k + " 条目不存在：" + id); });
+  });
+  OUT_MATRIX.forEach((r, i) => {
+    ["obj", "real", "imagine", "gap", "status", "ev"].forEach(f => { if (!r[f]) throw new Error("OUT_MATRIX[" + i + "] 缺字段：" + f); });
+  });
+  AI_SLOTS.forEach(x => { if (!x.ev || !x.date || !x.where || !x.gap || !x.note) throw new Error("AI_SLOTS " + x.k + " 字段不全"); });
+  HUD_ROUTES.forEach(x => { if (!x.ev || !x.date || !x.gap || !x.note) throw new Error("HUD_ROUTES " + x.k + " 字段不全"); });
+  if (OUT_TOPICS.length !== 6 || AI_SLOTS.length !== 4 || HUD_ROUTES.length !== 2) throw new Error("OUT 数量不符");
+  if (!evKeys.length) throw new Error("OUT_EV 为空");
+}
+
+const OUT_DB = {
+  ev: OUT_EV.map(x => ({ k: x.k, def: x.def })),
+  topics: OUT_TOPICS.map(x => ({ k: x.k, name: x.name, focus: x.focus, status: x.status, real: x.real, imagine: x.imagine, works: x.works, ids: x.ids.split(" ").filter(Boolean) })),
+  ai: AI_SLOTS.map(x => ({ k: x.k, name: x.name, where: x.where, ev: x.ev, date: x.date, real: x.real, imagine: x.imagine, ids: x.ids.split(" ").filter(Boolean), gap: x.gap, note: x.note })),
+  hud: HUD_ROUTES.map(x => ({ k: x.k, name: x.name, ev: x.ev, date: x.date, real: x.real, imagine: x.imagine, ids: x.ids.split(" ").filter(Boolean), gap: x.gap, note: x.note })),
+  matrix: OUT_MATRIX.map(x => ({ obj: x.obj, real: x.real, imagine: x.imagine, gap: x.gap, status: x.status, ev: x.ev }))
+};
+
+
 const CASE_DB = {
   meta: RCATS.map(c => ({ k: c.k, name: c.name, desc: c.desc, n: CASES.filter(x => x.cat === c.k).length })),
   list: CASES.map(c => ({ k: c.k, name: c.name, org: c.org, y: c.y, cat: c.cat, ev: c.ev, what: c.what, metric: c.metric, cant: c.cant, pin: c.pin, ids: c.ids }))
@@ -4490,6 +4623,7 @@ const DB = {
   cases: CASE_DB,
   compose: KIT_DB,
   link: LINK_DB,
+  out: OUT_DB,
   debate: DEBATE.map(x => ({ k: x.k, q: x.q, a: x.a, e: x.e, l: x.l, n: x.n, ids: x.ids.split(" ").filter(Boolean) })),
   paradigm: PARADIGM.map(x => ({ k: x.k, name: x.name, y: x.y, tag: x.tag, how: x.how, good: x.good, bad: x.bad })),
 
