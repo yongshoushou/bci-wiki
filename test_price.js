@@ -98,7 +98,9 @@ else {
   if (/<script/i.test(s)) bad.push("含script");
   const n = (s.match(/<tr><td><a href="[^"]+#\/item\//g) || []).length;
   if (n !== 67) bad.push("条目行=" + n);
-  if (!/content="2026-11-05"/.test(s)) bad.push("无生成日期");
+  const vd = (h.match(/VERDATE="([^"]+)"/) || [])[1];
+  if (!/content="\d{4}-\d{2}-\d{2}"/.test(s)) bad.push("无生成日期");
+  if (!vd || s.indexOf('content="' + vd + '"') < 0) bad.push("生成日期与站点不一致");
   if (!/GB\/T 7714/.test(s) || !/@misc\{/.test(s)) bad.push("无引用");
   if (!/六档分布/.test(s) || !/状态 × 难度/.test(s)) bad.push("缺章节");
 }

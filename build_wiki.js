@@ -4288,6 +4288,117 @@ items.forEach(d => {
   d.kits = COMPOSE.filter(k => k.ids.indexOf(d.id) !== -1).map(k => k.k);
 });
 
+// ---------- 连接形态图谱（v2.4.0 追加） ----------
+// 前面所有层写的是「接口」：零件、设备、适应证、监管。这一层写的是「连接」：
+// 谁连谁、往哪个方向、什么拓扑、传得动多少、能不能断开。
+// 六类不是从 67 条条目里算出来的，是编辑分类；ids 只挑代表性条目，允许重叠、允许不覆盖全部。
+// 数值一律取自站内已有的现实基线 / 案例 / 组合，唯一新增的外部事实是 BrainNet 2019（Nature Sci Rep 9, 6115）。
+const LINK_TYPES = [
+  { k: "LK1", name: "脑 → 机器", en: "Brain → Machine", flow: "B→M", dir: "单向读出", topo: "点对点", status: "已上市",
+    band: "光标控制 10.39 bit/s；打字 40–41 词/分",
+    def: "从神经活动里解码出意图，用来驱动外部设备。只读，不往脑里写任何东西。这是今天唯一拿到上市许可的一类连接。",
+    real: "全球首个植入式 BCI 注册证 2026-03 发出（NEO，适应证仅为抓握）；Neuralink 意念控光标 10.39 bit/s、脑到光标约 22 ms、打字 40–41 词/分；BrainGate 约 90–110 字符/分；脑虎「三全」系统全链路 <50 ms。",
+    refs: ["R01", "R05", "R06", "R10"],
+    works: "《赛博朋克 2077》神经接口与义体控制、《神经漫游者》插孔、《阿凡达》替身驱动",
+    ids: "C01 C02 C03 M01 X23",
+    gap: "作品里是「插上即用、即插即拔、全身通用」；现实要开颅、数周校准、胶质瘢痕让信号在 6–12 个月内衰减，且每台设备只解一个极窄的任务。",
+    quit: "停止解码即等于断开，软件层可随时关；但植入体本身不能无创取出，硬件层面的退出仍需一次手术。",
+    note: "六类里唯一「今天能买到」的一类——但买到的是抓握代偿，不是作品里的通用插槽。" },
+
+  { k: "LK2", name: "机器 → 脑", en: "Machine → Brain", flow: "M→B", dir: "单向写入", topo: "点对点", status: "已上市（粗刺激）",
+    band: "人工耳蜗 12–24 电极通道；视觉皮层刺激为光点级",
+    def: "把外部信号变成神经刺激或感官内容送进脑。与读出相反，它不取走什么，而是往里放什么。",
+    real: "人工耳蜗全球累计 >100 万例、12–24 个电极，是唯一大规模商业化验证成功的神经写入设备；DBS >20 万例、闭环版本已获监管批准；体感皮层微刺激可分辨粗糙/光滑，视觉皮层刺激只能产生光点。",
+    refs: ["R15", "R16", "R17", "R20"],
+    works: "《赛博朋克 2077》超梦与技能下载、《黑客帝国》红药丸、《神经漫游者》Simstim",
+    ids: "C04 C05 C13 C16 M04 M07 M13 X05 X18 X19",
+    gap: "现实送得进的是「粗刺激」：一个声音、一束光点、一次震颤抑制。送不进一个具体念头、一段记忆或一项技能——卡点不在硬件通道数，在「往哪儿写、写成什么格式才能生成内容」没有理论。",
+    quit: "耳蜗可关机、DBS 可程控调参，设备层的退出成立；但作品里最常演的是「内容一旦写入就取不出来」（人格覆写、成瘾、信念压制），那不是关机能解决的。",
+    note: "67 条里 M→B 有 17 条，是写得最多的一类；现实却是最薄的一类。读出容易、写入极难，是整张表最硬的分界线。" },
+
+  { k: "LK3", name: "脑 ↔ 机器", en: "Brain ↔ Machine (closed loop)", flow: "B↔M", dir: "双向闭环", topo: "点对点 · 反馈回路", status: "单点验证",
+    band: "闭环 DBS 只在单一回路成立；神经环路 10–20 ms",
+    def: "读出与写入同时在线，刺激引发反应、反应再调整刺激，形成一条持续运行的反馈回路。连接从「一条线」变成「一个环」。",
+    real: "闭环 DBS 已获监管批准（按生物标志物自动调参）；脑-脊髓接口「数字桥」2023 年 Nature 首例报告，训练后可自主控制步态；K19「双向 BCI + 云端算力」把重计算放到云上，属 C 档——技术成立但制度未开。",
+    refs: ["R16", "R18"],
+    works: "《黑客帝国》培养舱、《刀剑神域》FullDive、《赛博朋克 2077》Relic 与重新接入",
+    ids: "C01 M02 M18 M21 X16 X23",
+    gap: "作品的闭环是「全感官 + 全带宽 + 零延迟」；现实的闭环只在一个极窄的回路里成立（例如抑制震颤）。把回环放到公网更不行：神经环路本身 10–20 ms，公网往返 50–200 ms，延迟就是安全边界。",
+    quit: "闭环必须留本地降级路径——断网、断电不能让人受伤，这是器械审评的硬要求。K19 的结论是「能做辅助，做不到延伸」。",
+    note: "这一类才是「连接」开始像「关系」的地方：断开不再只是关机，而是切断一条正在运行的反馈回路。" },
+
+  { k: "LK4", name: "脑 ↔ 脑", en: "Brain ↔ Brain", flow: "B↔B", dir: "双向 / 多端", topo: "点对点 → 三端", status: "实验室（比特级）",
+    band: "BrainNet 每轮约 1 bit（转 / 不转），5 组平均 81.25%",
+    def: "两个及以上人脑之间直接传递信息，不经过语言、文字或动作。它是脑联网的最小单元，但还不是脑联网。",
+    real: "2013 年华盛顿大学 Rao 组首个双人 BBI（EEG 解码运动意图 → TMS 刺激接收者运动皮层）；2019 年 BrainNet（Nature Scientific Reports 9, 6115）用 EEG + TMS 让 3 人（2 发送 + 1 接收）经互联网协作完成俄罗斯方块类任务，每轮只传一个二进制决策，5 组平均准确率 81.25%，且接收者能学会更信任可靠的发送者。",
+    refs: [],
+    works: "《攻壳机动队》Stand Alone Complex 与电子脑、《心理测量者》西比拉系统、《环太平洋》Drift、《绯红结系》SAS 链路",
+    ids: "M19 X01 X03 X17 X20 M09",
+    gap: "作品里共享的是记忆、情绪、人格甚至意识；现实只传得动一个 yes/no。缺的不只是带宽，还有「把一段体验编码成可传输格式」的理论。",
+    quit: "实验里 TMS 可随时停止，物理退出没有问题；但作品里的共享常被写成不可退出、甚至当事人不知道自己被连（X20 是全表最被低估的一条）。",
+    note: "已经存在，但只有比特级——把它当成「心灵感应已实现」是这一层最常见的误读。" },
+
+  { k: "LK5", name: "脑 ↔ 网络 / 云", en: "Brain ↔ Network / Cloud", flow: "B↔N（站外扩展）", dir: "广播 · 订阅 · 群体同步", topo: "网状 / 星型", status: "无对应物",
+    band: "公网往返 50–200 ms vs 神经环路 10–20 ms；无脑级带宽",
+    def: "脑作为一个节点接入共享基础设施，可以广播、订阅、与其他节点同步。连接的另一端不再是「一台设备」或「一个人」，而是一张网。",
+    real: "没有对应物。最接近的三样都不是：K19 云端算力组合（C 档，制度未开）、BrainNet 三人（仍是小规模点对点）、神经数据上云（R24 情绪识别已规模商用，但那是数据被采集，不是脑在联网）。",
+    refs: ["R24", "R25"],
+    works: "《仿生人会梦见电子羊吗》共情箱、《攻壳》Stand Alone Complex、《雪崩》Metaverse、《头号玩家》OASIS、《86》Para-RAID",
+    ids: "M19 X03 X17 X08 X25 C07 M06",
+    gap: "作品默认无延迟、无带宽上限、可任意加入退出；现实网络永远有延迟，而且延迟就是安全边界。断网即失效，把生命支持交给云是不被接受的架构。",
+    quit: "账号可以注销，但「群体同步」一旦成为认知的基础设施，退出就不是登出，而是失去一部分感知能力（M08 模拟内死亡 → 肉体死亡是极端版本）。",
+    note: "这一层标「已上市」的是商业形态（头显 + 账户体系），不是脑联网本身——与 §19 的口径一致。" },
+
+  { k: "LK6", name: "全感官替代 / 沉浸流", en: "Full Sensory Substitution", flow: "S", dir: "双向 · 全通道", topo: "脑被整条流包住", status: "无对应物",
+    band: "无对应物；1024 电极 对 约 860 亿神经元",
+    def: "用一路模拟流完整顶替全部感官输入，同时接管运动输出，脑不再接触外部世界。它不是「连接更强」，是「连接变成了唯一的世界」。",
+    real: "没有对应物。勉强接近的是 VR 头显 + 体感反馈（完全不碰脑），以及人工耳蜗 / 视觉假体的单点替代（只替一个感官的一小部分）。",
+    refs: ["R15", "R20"],
+    works: "《黑客帝国》培养舱与矩阵、《刀剑神域》FullDive、《头号玩家》OASIS、《赛博朋克 2077》超梦与神舆",
+    ids: "M02 X16 X25 C04 C09 C10 C14 X10",
+    gap: "要求「写入 + 读出 + 零延迟 + 数十年不断电」四样同时成立，现实一样都没有。语音 ≈39 bit/s，顶尖植入 1024 电极对约 860 亿神经元——相当于用一千支麦克风推断整座体育场。",
+    quit: "六类里退出权最脆弱的：M16 自我拔除是全表唯一法律明确站在用户一侧的条目，M08 则把「退不出」写成了会死人的设定。",
+    note: "E4 在这一类最集中，因为全感官替代必然连带「这里面的我还是不是我」。" }
+];
+
+// 带宽阶梯：把「连接」这个抽象词换成可比较的量级。数值全部沿用站内现实基线，不另造数字。
+const LINK_BAND = [
+  { k: "LK1", act: "光标 10.39 bit/s · 打字 40–41 词/分", want: "一条线承载完整意识与全身控制", src: "现实基线 · R01" },
+  { k: "LK2", act: "耳蜗 12–24 电极 · 视觉为光点级", want: "写入一段记忆 / 一项技能 / 一个人格", src: "R15 · R20" },
+  { k: "LK3", act: "闭环 DBS 单一回路 · 环路 10–20 ms", want: "全感官、全带宽、零延迟闭环", src: "R16 · K19" },
+  { k: "LK4", act: "每轮约 1 bit · 81.25% 准确率", want: "记忆、情绪与人格共享", src: "BrainNet 2019" },
+  { k: "LK5", act: "无对应物 · 公网往返 50–200 ms", want: "无延迟、无上限的脑联网", src: "K19" },
+  { k: "LK6", act: "无对应物 · 1024 电极 / 约 860 亿神经元", want: "完整顶替全部感官数十年不断电", src: "现实基线" }
+];
+
+// 校验：编号唯一、条目存在、案例编号存在、必填字段齐全、带宽阶梯与形态一一对应
+{
+  const ks = LINK_TYPES.map(x => x.k);
+  if (new Set(ks).size !== ks.length) throw new Error("LINK_TYPES 编号重复");
+  const caseKeys = CASES.map(c => c.k);
+  LINK_TYPES.forEach(x => {
+    ["name", "en", "flow", "dir", "topo", "status", "band", "def", "real", "works", "ids", "gap", "quit", "note"].forEach(f => {
+      if (!x[f]) throw new Error("LINK_TYPES " + x.k + " 缺字段：" + f);
+    });
+    if (!Array.isArray(x.refs)) throw new Error("LINK_TYPES " + x.k + " refs 应为数组");
+    x.refs.forEach(k => { if (caseKeys.indexOf(k) === -1) throw new Error("LINK_TYPES " + x.k + " 案例不存在：" + k); });
+    x.ids.split(" ").filter(Boolean).forEach(id => { if (!IDSET.has(id)) throw new Error("LINK_TYPES " + x.k + " 条目不存在：" + id); });
+  });
+  if (LINK_BAND.length !== LINK_TYPES.length) throw new Error("LINK_BAND 与 LINK_TYPES 数量不符");
+  LINK_BAND.forEach(b => {
+    if (ks.indexOf(b.k) === -1) throw new Error("LINK_BAND 形态不存在：" + b.k);
+    ["act", "want", "src"].forEach(f => { if (!b[f]) throw new Error("LINK_BAND " + b.k + " 缺字段：" + f); });
+  });
+  if (LINK_TYPES.length !== 6) throw new Error("LINK_TYPES 应为 6 类");
+}
+
+const LINK_DB = {
+  types: LINK_TYPES.map(x => ({ k: x.k, name: x.name, en: x.en, flow: x.flow, dir: x.dir, topo: x.topo, status: x.status, band: x.band, def: x.def, real: x.real, refs: x.refs, works: x.works, ids: x.ids.split(" ").filter(Boolean), gap: x.gap, quit: x.quit, note: x.note })),
+  band: LINK_BAND.map(x => ({ k: x.k, act: x.act, want: x.want, src: x.src })),
+  flows: items.reduce((m, d) => { m[d.flow] = (m[d.flow] || 0) + 1; return m; }, {})
+};
+
+
 const CASE_DB = {
   meta: RCATS.map(c => ({ k: c.k, name: c.name, desc: c.desc, n: CASES.filter(x => x.cat === c.k).length })),
   list: CASES.map(c => ({ k: c.k, name: c.name, org: c.org, y: c.y, cat: c.cat, ev: c.ev, what: c.what, metric: c.metric, cant: c.cant, pin: c.pin, ids: c.ids }))
@@ -4378,6 +4489,7 @@ const DB = {
   matrixLaw: MATRIX_LAW,
   cases: CASE_DB,
   compose: KIT_DB,
+  link: LINK_DB,
   debate: DEBATE.map(x => ({ k: x.k, q: x.q, a: x.a, e: x.e, l: x.l, n: x.n, ids: x.ids.split(" ").filter(Boolean) })),
   paradigm: PARADIGM.map(x => ({ k: x.k, name: x.name, y: x.y, tag: x.tag, how: x.how, good: x.good, bad: x.bad })),
 
